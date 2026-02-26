@@ -1,0 +1,334 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ hill_station.name }} – Hill Station Details{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    .detail-hero {
+        background: linear-gradient(135deg, rgba(56, 189, 248, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+        border-radius: 20px;
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .detail-hero img {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+    }
+
+    .detail-content {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 18px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .detail-content h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .location-breadcrumb {
+        color: var(--accent-color);
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+    }
+
+    .breadcrumb-item {
+        margin-right: 0.75rem;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin: 2rem 0;
+    }
+
+    .info-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+
+    .info-card h6 {
+        color: var(--text-dim);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.75rem;
+    }
+
+    .info-card p {
+        font-size: 1.15rem;
+        font-weight: 600;
+        color: var(--text-main);
+    }
+
+    .description-section {
+        margin: 2rem 0;
+    }
+
+    .description-section h4 {
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .description-section p {
+        color: var(--text-dim);
+        line-height: 1.8;
+        font-size: 1rem;
+    }
+
+    .best-time-badge {
+        background: rgba(139, 92, 246, 0.2);
+        color: #a78bfa;
+        padding: 1rem;
+        border-radius: 12px;
+        margin: 2rem 0;
+    }
+
+    .best-time-badge h6 {
+        color: var(--text-dim);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+    }
+
+    .best-time-badge p {
+        font-size: 1.2rem;
+        color: #a78bfa;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .map-container {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 18px;
+        padding: 2rem;
+        margin: 2rem 0;
+    }
+
+    #map {
+        width: 100%;
+        height: 450px;
+        border-radius: 12px;
+    }
+
+    .action-buttons {
+        margin-top: 2rem;
+        gap: 1rem;
+    }
+
+    .btn-custom {
+        border-radius: 10px;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+    }
+
+    .btn-back {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--glass-border);
+        color: var(--text-main);
+    }
+
+    .btn-back:hover {
+        background: rgba(255, 255, 255, 0.15);
+        color: var(--text-main);
+    }
+
+    .btn-primary-custom {
+        background: var(--accent-color);
+        border: none;
+        color: #fff;
+    }
+
+    .btn-primary-custom:hover {
+        background: #0ea5e9;
+        color: #fff;
+    }
+
+    .admin-actions {
+        background: rgba(139, 92, 246, 0.1);
+        border: 1px solid rgba(139, 92, 246, 0.2);
+        border-radius: 12px;
+        padding: 1rem;
+        margin: 2rem 0;
+    }
+
+    .admin-actions a {
+        margin-right: 1rem;
+        color: var(--accent-color);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .admin-actions a:hover {
+        color: #fff;
+    }
+
+    .delete-btn {
+        color: #f87171 !important;
+    }
+
+    .delete-btn:hover {
+        color: #fca5a5 !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4" style="max-width: 1200px; margin: 0 auto; padding-left: 2rem; padding-right: 2rem;">
+
+    <!-- Back Button -->
+    <a href="{% url 'hill-stations-list' %}" class="btn btn-back btn-custom mb-4">← Back to Hill Stations</a>
+
+    <!-- Hero Image -->
+    {% if hill_station.image %}
+    <div class="detail-hero">
+        <img src="{{ hill_station.image.url }}" alt="{{ hill_station.name }}">
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <div class="detail-content">
+        <h1>{{ hill_station.name }}</h1>
+
+        <div class="location-breadcrumb">
+            📍 {{ hill_station.city }}, {{ hill_station.district }}, {{ hill_station.state }}, {{ hill_station.country
+            }}
+        </div>
+
+        <!-- Info Grid -->
+        <div class="info-grid">
+            <div class="info-card">
+                <h6>🌡️ Temperature Range</h6>
+                <p>{{ hill_station.temperature_range }}</p>
+            </div>
+            <div class="info-card">
+                <h6>📅 Best Time to Visit</h6>
+                <p>{{ hill_station.best_time_to_visit }}</p>
+            </div>
+            <div class="info-card">
+                <h6>📍 Coordinates</h6>
+                <p>{{ hill_station.latitude }}, {{ hill_station.longitude }}</p>
+            </div>
+        </div>
+
+        <!-- Best Time Badge -->
+        <div class="best-time-badge">
+            <h6>ℹ️ Recommended Season</h6>
+            <p>{{ hill_station.best_time_to_visit }}</p>
+        </div>
+
+        <!-- Description -->
+        <div class="description-section">
+            <h4>About {{ hill_station.name }}</h4>
+            <p>{{ hill_station.description }}</p>
+        </div>
+
+        <!-- ═══ Interactive Map & Navigation ═══ -->
+        <div class="map-container">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                <h4 style="margin: 0; font-weight: 700;">📍 Location on Map</h4>
+                <a href="https://www.google.com/maps/dir/?api=1&destination={{ hill_station.latitude }},{{ hill_station.longitude }}"
+                    target="_blank" rel="noopener" class="btn btn-primary-custom btn-custom"
+                    style="padding: 0.6rem 1.25rem; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none;">
+                    🧭 Navigate Here
+                </a>
+            </div>
+            <div id="map"
+                style="height: 400px; border-radius: 12px; border: 1px solid var(--glass-border); z-index: 1;"></div>
+        </div>
+
+        <!-- ═══ Nearby Places ═══ -->
+        {% if nearby_places %}
+        <div class="detail-content">
+            <h4 style="margin-bottom: 1.5rem; font-weight: 700; color: var(--accent-color);">🏘️ Nearby Places (within
+                25 km)</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem;">
+                {% for np in nearby_places %}
+                <a href="{% if np.result_type == 'hill_station' %}{% url 'hill-station-detail' np.pk %}{% else %}{% url 'explorer-detail' np.pk %}{% endif %}"
+                    style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: 15px; padding: 1.25rem; text-decoration: none; color: var(--text-main); transition: all 0.25s; display: block;"
+                    onmouseover="this.style.background='rgba(56, 189, 248, 0.08)'; this.style.borderColor='rgba(56, 189, 248, 0.3)'; this.style.transform='translateY(-3px)'"
+                    onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'; this.style.borderColor='var(--glass-border)'; this.style.transform='translateY(0)'">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                        <span style="font-weight: 700; font-size: 1.05rem;">{{ np.name }}</span>
+                        <span style="font-size: 0.82rem; color: #38bdf8; font-weight: 600;">📏 {{ np.distance_km }}
+                            km</span>
+                    </div>
+                    <div
+                        style="font-size: 0.88rem; color: var(--text-dim); display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                        <span>📍 {% if np.result_type == 'hill_station' %}{{ np.city }}{% else %}{{ np.location }}{%
+                            endif %}</span>
+                        <span
+                            style="background: rgba(139, 92, 246, 0.15); color: #a78bfa; padding: 0.15rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">
+                            {% if np.result_type == 'hill_station' %}🏔️ Hill Station{% else %}{{
+                            np.get_category_display }}{% endif %}
+                        </span>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Admin Actions -->
+        {% if user.is_staff %}
+        <div class="admin-actions">
+            <span style="color: var(--text-dim);">Admin Actions:</span>
+            <a href="{% url 'hill-station-edit' hill_station.pk %}">✏️ Edit</a>
+            <a href="{% url 'hill-station-delete' hill_station.pk %}" class="delete-btn">🗑️ Delete</a>
+        </div>
+        {% endif %}
+
+        <!-- Back to List Button -->
+        <div class="action-buttons d-flex justify-content-center mb-5">
+            <a href="{% url 'hill-stations-list' %}" class="btn btn-custom btn-back">← Back to Listings</a>
+        </div>
+
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var lat = {{ hill_station.latitude }
+        };
+        var lng = {{ hill_station.longitude }};
+        var map = L.map('map').setView([lat, lng], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        L.marker([lat, lng]).addTo(map)
+            .bindPopup('<strong>{{ hill_station.name|escapejs }}</strong><br>{{ hill_station.city|escapejs }}, {{ hill_station.state|escapejs }}')
+            .openPopup();
+
+        {% for np in nearby_places %}
+        {% if np.latitude and np.longitude %}
+        L.marker([{{ np.latitude }}, {{ np.longitude }}]).addTo(map)
+            .bindPopup('<a href="{% if np.result_type == "hill_station" %}{% url "hill-station-detail" np.pk %}{% else %}{% url "explorer-detail" np.pk %}{% endif %}" style="font-weight:700;">{{ np.name|escapejs }}</a><br>{{ np.distance_km }} km away');
+        {% endif %}
+        {% endfor %}
+    });
+    </script>
+    {% endblock %}

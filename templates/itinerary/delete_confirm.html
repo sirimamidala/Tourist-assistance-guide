@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Delete Itinerary — Tourist Assist{% endblock %}
+
+{% block content %}
+<div style="width:100%;max-width:520px;animation:fadeIn 0.5s ease;">
+    <div
+        style="background:var(--glass-bg);border:1px solid rgba(239,68,68,0.3);border-radius:20px;padding:2.5rem;text-align:center;">
+        <div style="font-size:3.5rem;margin-bottom:1rem;">🗑️</div>
+        <h2 style="font-size:1.5rem;margin-bottom:0.5rem;">Delete Itinerary?</h2>
+        <p style="color:var(--text-dim);margin-bottom:0.5rem;">
+            You're about to permanently delete the itinerary for:
+        </p>
+        <p style="font-size:1.25rem;font-weight:700;color:var(--accent-color);margin-bottom:1.5rem;">
+            🗺️ {{ plan.destination }}
+        </p>
+        <p style="color:var(--text-dim);font-size:0.85rem;margin-bottom:2rem;">
+            This action cannot be undone. All days and places in this plan will be removed.
+        </p>
+        <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+            <a href="{% url 'itinerary-detail' plan.pk %}"
+                style="background:rgba(255,255,255,0.06);border:1px solid var(--glass-border);border-radius:12px;padding:0.75rem 1.8rem;color:var(--text-dim);text-decoration:none;font-size:0.95rem;transition:background 0.15s;">
+                ← Cancel
+            </a>
+            <form method="POST" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit"
+                    style="background:linear-gradient(135deg,#ef4444,#dc2626);border:none;border-radius:12px;padding:0.75rem 1.8rem;color:white;font-size:0.95rem;font-weight:600;cursor:pointer;">
+                    Yes, Delete It
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

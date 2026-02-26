@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Registration Submitted – Tourist Assist{% endblock %}
+
+{% block content %}
+<div style="width: 100%; max-width: 650px; padding: 2rem 1rem; text-align: center;">
+
+    <!-- Success Icon -->
+    <div style="margin-bottom: 2rem;">
+        <div
+            style="width: 90px; height: 90px; border-radius: 50%; background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(129,140,248,0.2)); border: 2px solid rgba(56,189,248,0.4); display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 2.5rem; animation: pulse 2s infinite;">
+            ⏳
+        </div>
+    </div>
+
+    <h1 style="font-size: 2rem; margin-bottom: 0.75rem;">Registration Submitted!</h1>
+    <p style="color: var(--text-dim); font-size: 1.05rem; margin-bottom: 2.5rem;">
+        Your guide profile for <strong style="color: var(--accent-color);">{{ guide.full_name }}</strong> has been
+        received and is now pending admin review.
+    </p>
+
+    <!-- Steps -->
+    <div class="glass"
+        style="padding: 2rem; border-radius: 20px; background: var(--glass-bg); border: 1px solid var(--glass-border); text-align: left; margin-bottom: 2rem;">
+        <h2
+            style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; text-align: center; color: var(--text-dim);">
+            What happens next?</h2>
+
+        <div style="display: flex; gap: 1rem; margin-bottom: 1.25rem; align-items: flex-start;">
+            <div
+                style="min-width: 36px; height: 36px; border-radius: 50%; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.3); color: #38bdf8; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem;">
+                1</div>
+            <div>
+                <p style="font-weight: 600; margin-bottom: 0.2rem;">Details Stored Safely</p>
+                <p style="color: var(--text-dim); font-size: 0.9rem;">Your submitted information is securely saved in
+                    our database with a "Pending" status.</p>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-bottom: 1.25rem; align-items: flex-start;">
+            <div
+                style="min-width: 36px; height: 36px; border-radius: 50%; background: rgba(251,191,36,0.15); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem;">
+                2</div>
+            <div>
+                <p style="font-weight: 600; margin-bottom: 0.2rem;">Admin Reviews Your Profile</p>
+                <p style="color: var(--text-dim); font-size: 0.9rem;">Our team will verify your details and ID proof
+                    before approving your listing.</p>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-bottom: 0; align-items: flex-start;">
+            <div
+                style="min-width: 36px; height: 36px; border-radius: 50%; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); color: #4ade80; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem;">
+                3</div>
+            <div>
+                <p style="font-weight: 600; margin-bottom: 0.2rem;">You Get Listed Publicly</p>
+                <p style="color: var(--text-dim); font-size: 0.9rem;">Once approved, your profile will appear in the
+                    Local Guides section for tourists to discover and book.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Current Status Badge -->
+    <div
+        style="background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24; padding: 0.75rem 1.5rem; border-radius: 20px; display: inline-block; font-weight: 600; margin-bottom: 2rem;">
+        ⏳ Status: Pending Admin Approval
+    </div>
+
+    <!-- Actions -->
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;">
+        <a href="{% url 'guide-profile' guide.id %}"
+            style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #38bdf8, #818cf8); color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">
+            View My Profile
+        </a>
+        <a href="{% url 'booking-system' %}?type=GUIDE"
+            style="padding: 0.75rem 1.5rem; background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border); color: var(--text-dim); text-decoration: none; border-radius: 8px; font-weight: 600;">
+            Browse Local Guides
+        </a>
+    </div>
+</div>
+
+<style>
+    @keyframes pulse {
+
+        0%,
+        100% {
+            box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.3);
+        }
+
+        50% {
+            box-shadow: 0 0 0 12px rgba(56, 189, 248, 0);
+        }
+    }
+</style>
+{% endblock %}

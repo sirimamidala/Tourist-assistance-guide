@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+{% block title %}Edit Itinerary — Tourist Assist{% endblock %}
+
+{% block extra_head %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    .section-card {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 18px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        backdrop-filter: blur(10px);
+    }
+
+    .section-title {
+        font-size: 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--accent-color);
+        margin-bottom: 1.2rem;
+    }
+
+    .form-control {
+        background: rgba(255, 255, 255, 0.12) !important;
+        border: 1px solid var(--glass-border) !important;
+        color: #ffffff !important;
+        border-radius: 12px !important;
+        transition: all 0.3s ease;
+    }
+
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.5) !important;
+    }
+
+    /* Fix for date inputs to ensure text is visible */
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+    }
+
+    .form-control:focus {
+        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2) !important;
+        border-color: var(--accent-color) !important;
+    }
+
+    label[for] {
+        color: var(--text-dim);
+        font-size: 0.9rem;
+        margin-bottom: 0.3rem;
+        display: block;
+    }
+
+    .budget-options {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .budget-label {
+        flex: 1;
+        min-width: 130px;
+        border: 2px solid var(--glass-border);
+        border-radius: 12px;
+        padding: 1rem;
+        cursor: pointer;
+        transition: all 0.25s;
+        text-align: center;
+    }
+
+    .budget-radio:checked+.budget-label {
+        border-color: var(--accent-color);
+        background: rgba(56, 189, 248, 0.1);
+    }
+
+    .budget-radio {
+        display: none;
+    }
+
+    .interests-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 0.75rem;
+    }
+
+    .interest-item input {
+        display: none;
+    }
+
+    .interest-chip {
+        border: 2px solid var(--glass-border);
+        border-radius: 10px;
+        padding: 0.65rem 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: center;
+        font-size: 0.88rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .interest-chip .chip-icon {
+        font-size: 1.5rem;
+    }
+
+    .interest-item input:checked+.interest-chip {
+        border-color: var(--accent-color);
+        background: rgba(56, 189, 248, 0.1);
+        color: var(--accent-color);
+    }
+
+    .btn-save {
+        background: linear-gradient(135deg, #38bdf8, #818cf8);
+        border: none;
+        border-radius: 12px;
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: white;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .btn-save:hover {
+        transform: translateY(-2px);
+    }
+
+    .btn-cancel {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
+        color: var(--text-dim);
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .errorlist {
+        list-style: none;
+        padding: 0;
+        margin: 0.4rem 0 0;
+        color: #f87171;
+        font-size: 0.85rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="width:100%;max-width:860px;padding:1rem 0 3rem;">
+
+    <div style="margin-bottom:2rem;">
+        <h1 style="font-size:1.9rem;font-weight:700;margin-bottom:0.3rem;">✏️ Edit Itinerary</h1>
+        <p style="color:var(--text-dim);margin:0;">Updating: <strong style="color:var(--text-main);">{{ plan.destination
+                }}</strong></p>
+    </div>
+
+    <form method="POST" novalidate>
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="section-card">
+            <div class="section-title">📍 Destination & Dates</div>
+            <div class="row g-3">
+                <div class="col-md-12">
+                    <label for="{{ form.destination.id_for_label }}">Destination</label>
+                    {{ form.destination }}
+                    {% if form.destination.errors %}<ul class="errorlist">{% for e in form.destination.errors %}<li>{{ e
+                            }}</li>{% endfor %}</ul>{% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label for="{{ form.num_days.id_for_label }}">Number of Days</label>
+                    {{ form.num_days }}
+                    {% if form.num_days.errors %}<ul class="errorlist">{% for e in form.num_days.errors %}<li>{{ e }}
+                        </li>{% endfor %}</ul>{% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label for="{{ form.start_date.id_for_label }}">Start Date</label>
+                    {{ form.start_date }}
+                </div>
+                <div class="col-md-4">
+                    <label for="{{ form.end_date.id_for_label }}">End Date</label>
+                    {{ form.end_date }}
+                </div>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-title">💰 Estimated Extra Costs (Optional)</div>
+            <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 1.2rem;">
+                Update estimated costs for accommodation, transport and food.
+            </p>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label for="{{ budget_form.hotel_cost.id_for_label }}">🏨 Hotel Cost (₹)</label>
+                    {{ budget_form.hotel_cost }}
+                    {% if budget_form.hotel_cost.errors %}<ul class="errorlist">{% for e in
+                        budget_form.hotel_cost.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label for="{{ budget_form.transport_cost.id_for_label }}">🚗 Transport Cost (₹)</label>
+                    {{ budget_form.transport_cost }}
+                    {% if budget_form.transport_cost.errors %}<ul class="errorlist">{% for e in
+                        budget_form.transport_cost.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label for="{{ budget_form.food_cost.id_for_label }}">🍽️ Food Cost (₹)</label>
+                    {{ budget_form.food_cost }}
+                    {% if budget_form.food_cost.errors %}<ul class="errorlist">{% for e in budget_form.food_cost.errors
+                        %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                </div>
+            </div>
+
+            <div
+                style="margin-top: 1.5rem; padding: 1rem; background: rgba(56, 189, 248, 0.08); border-radius: 12px; border: 1px dashed var(--accent-color); display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 600; color: var(--text-dim);">Estimated Total Additional:</span>
+                <span id="live_total"
+                    style="font-size: 1.2rem; font-weight: 700; color: var(--accent-color);">₹0.00</span>
+            </div>
+        </div>
+
+        <div style="display:flex;gap:1rem;justify-content:center;margin-top:1rem;">
+            <a href="{% url 'itinerary-detail' plan.pk %}" class="btn-cancel">← Cancel</a>
+            <button type="submit" class="btn-save">💾 Save Changes</button>
+        </div>
+    </form>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    (function () {
+        const hotelInput = document.getElementById('id_hotel_cost');
+        const transportInput = document.getElementById('id_transport_cost');
+        const foodInput = document.getElementById('id_food_cost');
+        const totalDisplay = document.getElementById('live_total');
+
+        function updateTotal() {
+            const h = parseFloat(hotelInput.value) || 0;
+            const t = parseFloat(transportInput.value) || 0;
+            const f = parseFloat(foodInput.value) || 0;
+            const total = h + t + f;
+            totalDisplay.innerText = '₹' + total.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+        }
+
+        [hotelInput, transportInput, foodInput].forEach(input => {
+            if (input) input.addEventListener('input', updateTotal);
+        });
+
+        // Initialize display
+        updateTotal();
+    })();
+</script>
+{% endblock %}

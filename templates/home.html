@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_head %}
+<style>
+    .hero-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+    }
+
+    .hero-bg {
+        width: 100%;
+        height: 100%;
+        background-image: url('{% static "images/home-bg-vibrant.png" %}');
+        background-size: cover;
+        background-position: center;
+        filter: brightness(0.8) saturate(1.8);
+        transform: scale(1.1);
+        animation: slowZoom 25s infinite alternate ease-in-out;
+    }
+
+    .hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom, rgba(15, 23, 42, 0.2), rgba(15, 23, 42, 0.6));
+    }
+
+    @keyframes slowZoom {
+        from {
+            transform: scale(1);
+        }
+
+        to {
+            transform: scale(1.15);
+        }
+    }
+
+    .home-content {
+        margin-top: -5rem;
+    }
+
+    .hero h1 {
+        background: linear-gradient(90deg, #38bdf8, #f472b6, #fbbf24);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: colorShift 10s infinite alternate;
+    }
+
+    @keyframes colorShift {
+        0% {
+            filter: hue-rotate(0deg);
+        }
+
+        100% {
+            filter: hue-rotate(15deg);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hero-container">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+</div>
+
+<div class="home-content"
+    style="text-align: center; padding: 5rem 0; width: 100%; max-width: 1000px; position: relative; z-index: 1;">
+    <div class="hero" style="animation: fadeInDown 1.2s ease-out;">
+        <h1
+            style="font-size: clamp(3rem, 10vw, 5.5rem); line-height: 1.1; margin-bottom: 2rem; font-weight: 900; text-shadow: 0 10px 40px rgba(0,0,0,0.4);">
+            Explore the World with<br>
+            TouristAssist
+        </h1>
+
+        <p
+            style="font-size: 1.35rem; color: #f8fafc; margin-bottom: 4rem; max-width: 650px; margin-left: auto; margin-right: auto; line-height: 1.6; text-shadow: 0 2px 8px rgba(0,0,0,0.5); font-weight: 500;">
+            Experience the vibrant colors of your next adventure. Discover hidden paradises and plan your dream trip
+            with our AI-powered travel assistant.
+        </p>
+
+        <div class="cta-group" style="display: flex; gap: 2rem; justify-content: center; margin-bottom: 5rem;">
+            {% if user.is_authenticated %}
+            <a href="{% url 'dashboard' %}" class="btn-primary"
+                style="padding: 1.3rem 3rem; background: linear-gradient(135deg, #0ea5e9, #8b5cf6, #ec4899); color: white; text-decoration: none; border-radius: 20px; font-weight: 800; font-size: 1.15rem; box-shadow: 0 20px 40px rgba(0,0,0,0.3); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: inline-block;">
+                Login
+            </a>
+            {% else %}
+            <a href="{% url 'signup' %}" class="btn-primary"
+                style="padding: 1.2rem 2.8rem; background: #fff; color: #0f172a; text-decoration: none; border-radius: 20px; font-weight: 800; transition: all 0.3s ease; box-shadow: 0 10px 20px rgba(0,0,0,0.2);">
+                Get Started
+            </a>
+            <a href="{% url 'login' %}" class="btn-outline"
+                style="padding: 1.2rem 2.8rem; border: 2px solid #fff; color: white; backdrop-filter: blur(10px); text-decoration: none; border-radius: 200px; font-weight: 700; transition: all 0.3s ease;">
+                Sign In
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if show_profile and user.is_authenticated %}
+    <div class="profile-section" style="margin-top: 4rem; animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);">
+        <div class="profile-card"
+            style="background: rgba(255,255,255,0.07); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.2); border-radius: 40px; padding: 3.5rem; text-align: left; max-width: 680px; margin: 0 auto; box-shadow: 0 40px 80px rgba(0,0,0,0.4);">
+            <div style="display: flex; align-items: center; gap: 2.5rem; margin-bottom: 3rem;">
+                <div
+                    style="width: 95px; height: 95px; border-radius: 50%; background: linear-gradient(135deg, #0ea5e9, #f43f5e); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: white; border: 4px solid rgba(255,255,255,0.3); box-shadow: 0 10px 20px rgba(0,0,0,0.2);">
+                    {{ user.username|first|upper }}
+                </div>
+                <div>
+                    <h2 style="margin: 0; font-size: 2.5rem; color: white; font-weight: 800;">{{ user.username }}</h2>
+                    <p
+                        style="color: #38bdf8; margin: 0.3rem 0 0 0; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; font-size: 0.95rem;">
+                        {{ user.profile.role|title }}</p>
+                </div>
+            </div>
+
+            <div style="display: grid; gap: 2rem;">
+                <div
+                    style="padding: 1.5rem; background: rgba(255,255,255,0.08); border-radius: 24px; border: 1px solid rgba(255,255,255,0.12);">
+                    <small
+                        style="color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; font-size: 0.8rem;">Traveler
+                        Email</small>
+                    <div style="font-size: 1.3rem; color: white; margin-top: 0.5rem; font-weight: 500;">{{
+                        user.email|default:"Not set" }}</div>
+                </div>
+                <div
+                    style="padding: 1.5rem; background: rgba(255,255,255,0.08); border-radius: 24px; border: 1px solid rgba(255,255,255,0.12);">
+                    <small
+                        style="color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; font-size: 0.8rem;">Wanderlust
+                        Bio</small>
+                    <div
+                        style="font-size: 1.2rem; color: rgba(255,255,255,0.95); margin-top: 0.5rem; line-height: 1.7; font-weight: 400;">
+                        {{ user.profile.bio|default:"Prepare your soul for the next journey." }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(60px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-40px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-8px) scale(1.05);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        filter: brightness(1.2);
+    }
+
+    .btn-outline:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateY(-5px);
+        border-color: #fff;
+    }
+</style>
+{% endblock %}

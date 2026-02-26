@@ -1,0 +1,324 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{% if action %}{{ action }}{% else %}Manage{% endif %} Hill Station{% endblock %}
+
+{% block extra_head %}
+<!-- Bootstrap 5 -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    .form-container {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 18px;
+        padding: 2.5rem;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .form-container h2 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        color: var(--text-main);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-control, .form-select, textarea {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        color: var(--text-main);
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+    }
+
+    .form-control::placeholder, textarea::placeholder {
+        color: var(--text-dim);
+    }
+
+    .form-control:focus, .form-select:focus, textarea:focus {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: var(--accent-color);
+        color: var(--text-main);
+        box-shadow: 0 0 0 0.2rem rgba(56, 189, 248, 0.25);
+    }
+
+    .form-control::-webkit-autofill {
+        -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.05) inset;
+        -webkit-text-fill-color: var(--text-main);
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .form-row.full {
+        grid-template-columns: 1fr;
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 120px;
+        font-family: 'Outfit', sans-serif;
+    }
+
+    .file-input-wrapper {
+        position: relative;
+    }
+
+    .form-control-file {
+        display: none;
+    }
+
+    .file-input-label {
+        display: inline-block;
+        background: rgba(56, 189, 248, 0.1);
+        border: 2px dashed var(--accent-color);
+        border-radius: 10px;
+        padding: 2rem;
+        text-align: center;
+        cursor: pointer;
+        width: 100%;
+        color: var(--accent-color);
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .file-input-label:hover {
+        background: rgba(56, 189, 248, 0.2);
+    }
+
+    .btn-container {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        justify-content: center;
+    }
+
+    .btn-custom {
+        border-radius: 10px;
+        font-weight: 600;
+        padding: 0.75rem 2rem;
+        flex: 1;
+        max-width: 250px;
+    }
+
+    .btn-submit {
+        background: var(--accent-color);
+        border: none;
+        color: #fff;
+    }
+
+    .btn-submit:hover {
+        background: #0ea5e9;
+        color: #fff;
+    }
+
+    .btn-cancel {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--glass-border);
+        color: var(--text-main);
+    }
+
+    .btn-cancel:hover {
+        background: rgba(255, 255, 255, 0.15);
+        color: var(--text-main);
+    }
+
+    .help-text {
+        font-size: 0.85rem;
+        color: var(--text-dim);
+        margin-top: 0.35rem;
+    }
+
+    .required-field::after {
+        content: ' *';
+        color: #f87171;
+    }
+
+    .form-error {
+        color: #f87171;
+        font-size: 0.85rem;
+        margin-top: 0.35rem;
+    }
+
+    .success-message {
+        background: rgba(34, 197, 94, 0.1);
+        border-left: 4px solid #22c55e;
+        color: #86efac;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4" style="max-width: 800px; margin: 0 auto; padding-left: 2rem; padding-right: 2rem;">
+    
+    <div class="form-container">
+        <h2>{{ action }} Hill Station</h2>
+
+        <!-- Display Messages -->
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Name -->
+            <div class="form-group">
+                <label for="id_name" class="form-label required-field">Hill Station Name</label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                    <div class="form-error">{{ form.name.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <!-- City & District Row -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_city" class="form-label required-field">City</label>
+                    {{ form.city }}
+                    {% if form.city.errors %}
+                        <div class="form-error">{{ form.city.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="id_district" class="form-label required-field">District</label>
+                    {{ form.district }}
+                    {% if form.district.errors %}
+                        <div class="form-error">{{ form.district.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- State & Country Row -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_state" class="form-label required-field">State</label>
+                    {{ form.state }}
+                    {% if form.state.errors %}
+                        <div class="form-error">{{ form.state.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="id_country" class="form-label required-field">Country</label>
+                    {{ form.country }}
+                    {% if form.country.errors %}
+                        <div class="form-error">{{ form.country.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="form-group form-row full">
+                <div>
+                    <label for="id_description" class="form-label required-field">Description</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                        <div class="form-error">{{ form.description.errors.0 }}</div>
+                    {% endif %}
+                    <div class="help-text">Provide a detailed description about the hill station</div>
+                </div>
+            </div>
+
+            <!-- Best Time & Temperature Row -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_best_time_to_visit" class="form-label required-field">Best Time to Visit</label>
+                    {{ form.best_time_to_visit }}
+                    {% if form.best_time_to_visit.errors %}
+                        <div class="form-error">{{ form.best_time_to_visit.errors.0 }}</div>
+                    {% endif %}
+                    <div class="help-text">e.g., April-June</div>
+                </div>
+                <div class="form-group">
+                    <label for="id_temperature_range" class="form-label required-field">Temperature Range</label>
+                    {{ form.temperature_range }}
+                    {% if form.temperature_range.errors %}
+                        <div class="form-error">{{ form.temperature_range.errors.0 }}</div>
+                    {% endif %}
+                    <div class="help-text">e.g., 10°C - 25°C</div>
+                </div>
+            </div>
+
+            <!-- Latitude & Longitude Row -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_latitude" class="form-label required-field">Latitude</label>
+                    {{ form.latitude }}
+                    {% if form.latitude.errors %}
+                        <div class="form-error">{{ form.latitude.errors.0 }}</div>
+                    {% endif %}
+                    <div class="help-text">For map integration (e.g., 31.7683)</div>
+                </div>
+                <div class="form-group">
+                    <label for="id_longitude" class="form-label required-field">Longitude</label>
+                    {{ form.longitude }}
+                    {% if form.longitude.errors %}
+                        <div class="form-error">{{ form.longitude.errors.0 }}</div>
+                    {% endif %}
+                    <div class="help-text">For map integration (e.g., 77.1092)</div>
+                </div>
+            </div>
+
+            <!-- Image Upload -->
+            <div class="form-group form-row full">
+                <div>
+                    <label for="id_image" class="form-label required-field">Image</label>
+                    {{ form.image }}
+                    {% if form.image.errors %}
+                        <div class="form-error">{{ form.image.errors.0 }}</div>
+                    {% endif %}
+                    <div class="help-text">Upload a high-quality image for the hill station</div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="btn-container">
+                <button type="submit" class="btn btn-custom btn-submit">
+                    {% if action == "Add" %}
+                        ✚ Add Hill Station
+                    {% else %}
+                        ✓ Update Hill Station
+                    {% endif %}
+                </button>
+                <a href="{% url 'hill-stations-list' %}" class="btn btn-custom btn-cancel">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Make Bootstrap form classes work with Django form
+    document.querySelectorAll('.form-control, .form-select, textarea').forEach(input => {
+        if (!input.classList.contains('form-control-checked')) {
+            input.classList.add('form-control-checked');
+        }
+    });
+</script>
+{% endblock %}

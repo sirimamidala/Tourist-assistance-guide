@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Tourist Assistance{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper" style="width: 100%; max-width: 1200px; animation: fadeIn 0.8s ease-out;">
+    <div class="dashboard-header" style="margin-bottom: 3rem; text-align: left;">
+        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Welcome back, {{ user.username }}! 👋</h1>
+        <p style="color: var(--text-dim); font-size: 1.1rem;">Where would you like to explore today?</p>
+        <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+            <a href="{% url 'profile' %}" class="btn-outline"
+                style="padding: 0.5rem 1rem; text-decoration: none; border: 1px solid var(--accent-color); color: var(--accent-color); border-radius: 8px; font-size: 0.9rem;">My
+                Profile</a>
+            {% if user.local_guides.all %}
+            <a href="{% url 'guide-dashboard' %}" class="btn-primary"
+                style="padding: 0.5rem 1rem; text-decoration: none; background: #fbbf24; color: black; border-radius: 8px; font-size: 0.9rem; font-weight: 700;">Guide
+                Dashboard</a>
+            {% endif %}
+            <a href="{% url 'logout' %}" class="btn-outline"
+                style="padding: 0.5rem 1rem; text-decoration: none; border: 1px solid rgba(255,255,255,0.2); color: var(--text-dim); border-radius: 8px; font-size: 0.9rem;">Logout</a>
+        </div>
+    </div>
+
+    <div class="dashboard-grid"
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+        <!-- Stats Card -->
+        <div class="card"
+            style="background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: 20px; padding: 2rem;">
+            <h3 style="margin-bottom: 1rem; color: var(--accent-color);">Your Stats</h3>
+            <div style="display: flex; gap: 2rem;">
+                <div>
+                    <span style="display: block; font-size: 1.5rem; font-weight: 600;">12</span>
+                    <span style="color: var(--text-dim); font-size: 0.9rem;">Trips</span>
+                </div>
+                <div>
+                    <span style="display: block; font-size: 1.5rem; font-weight: 600;">5</span>
+                    <span style="color: var(--text-dim); font-size: 0.9rem;">Countries</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Bookings -->
+        <div class="card"
+            style="background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: 20px; padding: 2rem;">
+            <h3 style="margin-bottom: 1rem; color: var(--accent-color);">Your Bookings</h3>
+            <ul style="list-style: none; color: var(--text-dim); font-size: 0.95rem; margin: 0; padding: 0;">
+                {% for booking in recent_bookings %}
+                <li
+                    style="margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem;">
+                    <div>
+                        <span style="display: block; color: white; font-weight: 500;">
+                            {% if booking.service.type == 'HOTEL' %}🏨{% elif booking.service.type == 'TRANSPORT' %}🚗{%
+                            elif booking.service.type == 'GUIDE' %}🗺️{% else %}📍{% endif %}
+                            {{ booking.service.name }}
+                        </span>
+                        <span style="font-size: 0.8rem;">
+                            Date: {{ booking.booking_date }}
+                            {% if booking.guest_name %}<br>Guest: {{ booking.guest_name }}{% endif %}
+                        </span>
+                    </div>
+                    <span style="font-size: 0.75rem; padding: 0.2rem 0.52rem; border-radius: 6px;
+                        {% if booking.status == 'WAITING_APPROVAL' %} background: rgba(251, 191, 36, 0.15); color: #fbbf24;
+                        {% elif booking.status == 'CONFIRMED' %} background: rgba(34, 197, 94, 0.15); color: #4ade80;
+                        {% elif booking.status == 'REJECTED' %} background: rgba(239, 68, 68, 0.15); color: #f87171;
+                        {% else %} background: rgba(255, 255, 255, 0.1); color: var(--text-dim);
+                        {% endif %}">
+                        {{ booking.get_status_display }}
+                    </span>
+                </li>
+                {% empty %}
+                <li style="color: var(--text-dim); font-size: 0.9rem;">No bookings yet!</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card"
+            style="background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: 20px; padding: 2rem;">
+            <h3 style="margin-bottom: 1rem; color: var(--accent-color);">Quick Actions</h3>
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <a href="{% url 'itinerary-planner' %}" class="btn-primary"
+                    style="text-decoration: none; text-align: center; font-size: 0.9rem; padding: 0.75rem;">Plan New
+                    Trip</a>
+                <a href="{% url 'booking-system' %}" class="btn-outline"
+                    style="text-decoration: none; text-align: center; font-size: 0.9rem; padding: 0.75rem; border: 1px solid var(--accent); color: var(--accent); border-radius: 8px;">Book
+                    Services</a>
+                <a href="{% url 'community-feed' %}" class="btn-outline"
+                    style="text-decoration: none; text-align: center; font-size: 0.9rem; padding: 0.75rem; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px;">Community
+                    Feed</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

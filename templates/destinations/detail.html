@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+
+{% block title %}{{ destination.name }} - TouristAssist{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    .detail-container {
+        max-width: 1000px;
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .detail-hero {
+        position: relative;
+        height: 400px;
+        border-radius: 30px;
+        overflow: hidden;
+        margin-bottom: 2rem;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .detail-hero img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .hero-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 3rem 2rem;
+        background: linear-gradient(transparent, rgba(15, 23, 42, 0.9));
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+    }
+
+    .hero-title {
+        font-size: 3rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 0.5rem;
+    }
+
+    .hero-location {
+        font-size: 1.25rem;
+        color: var(--accent-color);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .content-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+    }
+
+    .main-content {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        padding: 2rem;
+        border-radius: 20px;
+        backdrop-filter: blur(10px);
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid var(--accent-color);
+        padding-left: 1rem;
+    }
+
+    .description {
+        line-height: 1.8;
+        color: var(--text-dim);
+        font-size: 1.1rem;
+    }
+
+    .sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .side-card {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        padding: 1.5rem;
+        border-radius: 20px;
+    }
+
+    .attraction-link {
+        display: block;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        margin-bottom: 0.5rem;
+        text-decoration: none;
+        color: var(--text-main);
+        transition: background 0.3s;
+    }
+
+    .attraction-link:hover {
+        background: rgba(56, 189, 248, 0.1);
+    }
+
+    .attraction-name {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .attraction-cat {
+        font-size: 0.8rem;
+        color: var(--text-dim);
+    }
+
+    #dest-map {
+        height: 220px;
+        border-radius: 14px;
+        z-index: 1;
+    }
+
+    .btn-navigate {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.6rem 1.2rem;
+        background: linear-gradient(135deg, #38bdf8, #818cf8);
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: transform 0.2s;
+        width: 100%;
+        justify-content: center;
+        margin-top: 0.75rem;
+    }
+
+    .btn-navigate:hover {
+        transform: scale(1.02);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+    <div class="detail-hero">
+        {% if destination.photo %}
+        <img src="{{ destination.photo.url }}" alt="{{ destination.name }}">
+        {% else %}
+        <div style="width: 100%; height: 100%; background: #1e293b;"></div>
+        {% endif %}
+        <div class="hero-overlay">
+            <h1 class="hero-title">{{ destination.name }}</h1>
+            <div class="hero-location">📍 {{ destination.location }}</div>
+        </div>
+    </div>
+
+    <div class="content-grid">
+        <div class="main-content">
+            <h2 class="section-title">About this Place</h2>
+            <div class="description">
+                {{ destination.description|linebreaks }}
+            </div>
+
+            <div style="margin-top: 3rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <div class="glass"
+                    style="padding: 1.5rem; border-radius: 15px; border-top: 4px solid var(--accent-color);">
+                    <h3 style="margin-bottom: 1rem;">🚌 Public Transport</h3>
+                    <p style="font-size: 0.9rem; color: var(--text-dim);">Easily reach this destination via the City
+                        Metro (Line 4) or Bus Routes 102 & 505. Walking distance from the central station: 15 mins.</p>
+                </div>
+                <div class="glass" style="padding: 1.5rem; border-radius: 15px; border-top: 4px solid #8b5cf6;">
+                    <h3 style="margin-bottom: 1rem;">🕶️ AR Guide Beta</h3>
+                    <p style="font-size: 0.9rem; color: var(--text-dim);">Scan nearby landmark markers with our mobile
+                        app to see historical overlays and 3D reconstructions in real-time.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            {% if destination.latitude and destination.longitude %}
+            <div class="side-card">
+                <h3 class="section-title" style="font-size: 1.2rem;">📍 Location Map</h3>
+                <div id="dest-map"></div>
+                <a href="https://www.google.com/maps/dir/?api=1&destination={{ destination.latitude }},{{ destination.longitude }}"
+                    target="_blank" rel="noopener" class="btn-navigate">
+                    🧭 Navigate Here
+                </a>
+            </div>
+            {% endif %}
+
+            <div class="side-card">
+                <h3 class="section-title" style="font-size: 1.2rem;">Local Weather</h3>
+                {% if weather.error %}
+                <p style="color: var(--text-dim);">Weather info unavailable.</p>
+                {% else %}
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span style="font-size: 2rem;">{% if weather.condition == "Rain" %}🌧️{% elif weather.condition ==
+                        "Clouds" %}☁️{% else %}☀️{% endif %}</span>
+                    <div>
+                        <div style="font-size: 1.5rem; font-weight: bold;">{{ weather.temp }}°C</div>
+                        <div style="color: var(--text-dim);">{{ weather.condition }}</div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="side-card">
+                <h3 class="section-title" style="font-size: 1.2rem;">Quick Actions</h3>
+                <a href="{% url 'booking-system' %}" class="btn-card"
+                    style="width: 100%; text-align: center; margin-bottom: 1rem;">Book a Hotel</a>
+                <a href="{% url 'itinerary-planner' %}" class="btn-card"
+                    style="width: 100%; text-align: center; background: transparent; border: 1px solid var(--accent-color); color: var(--accent-color);">Plan
+                    Itinerary</a>
+            </div>
+
+            <div class="side-card">
+                <h3 class="section-title" style="font-size: 1.2rem;">Top Attractions</h3>
+                {% for attraction in attractions %}
+                <div class="attraction-link">
+                    <div class="attraction-name">{{ attraction.name }}</div>
+                    <div class="attraction-cat">{{ attraction.get_category_display }}</div>
+                </div>
+                {% empty %}
+                <p style="color: var(--text-dim); font-size: 0.9rem;">No specific attractions listed.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if destination.latitude and destination.longitude %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var lat = {{ destination.latitude }
+    };
+    var lng = {{ destination.longitude }};
+    var map = L.map('dest-map').setView([lat, lng], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    L.marker([lat, lng]).addTo(map)
+        .bindPopup('<strong>{{ destination.name|escapejs }}</strong><br>{{ destination.location|escapejs }}')
+        .openPopup();
+    });
+</script>
+{% endif %}
+{% endblock %}

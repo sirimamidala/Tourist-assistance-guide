@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+
+{% block title %}Transport Services - Tourist Assistance{% endblock %}
+
+{% block content %}
+<div class="transport-wrapper" style="width: 100%; max-width: 1200px; animation: fadeIn 0.8s ease-out;">
+    <div class="header" style="margin-bottom: 3rem; text-align: center;">
+        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Explore Transport Options 🚗</h1>
+        <p style="color: var(--text-dim); font-size: 1.1rem;">Find the best rides to get you where you need to go.</p>
+    </div>
+
+    <div class="filter-bar glass"
+        style="display: flex; gap: 1rem; padding: 1rem; border-radius: 50px; margin-bottom: 3rem; justify-content: center; flex-wrap: wrap;">
+        <button class="filter-btn active" data-filter="all"
+            style="padding: 0.5rem 1.5rem; border-radius: 20px; border: none; background: var(--accent-color); color: white; cursor: pointer;">All</button>
+        <button class="filter-btn" data-filter="CAB"
+            style="padding: 0.5rem 1.5rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: var(--text-dim); cursor: pointer;">🚖
+            Cabs / Taxis</button>
+        <button class="filter-btn" data-filter="BUS"
+            style="padding: 0.5rem 1.5rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: var(--text-dim); cursor: pointer;">🚌
+            Buses</button>
+        <button class="filter-btn" data-filter="TRAIN"
+            style="padding: 0.5rem 1.5rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: var(--text-dim); cursor: pointer;">🚆
+            Trains</button>
+        <button class="filter-btn" data-filter="FLIGHT"
+            style="padding: 0.5rem 1.5rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: var(--text-dim); cursor: pointer;">✈️
+            Flights</button>
+        <button class="filter-btn" data-filter="CAR_RENTAL"
+            style="padding: 0.5rem 1.5rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: var(--text-dim); cursor: pointer;">🚗
+            Car Rentals</button>
+        <button class="filter-btn" data-filter="BIKE_RENTAL"
+            style="padding: 0.5rem 1.5rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: var(--text-dim); cursor: pointer;">🛵
+            Bike Rentals</button>
+    </div>
+
+    <div class="services-grid"
+        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem;">
+        {% for service in services %}
+        <div class="service-card glass" data-category="{{ service.transport_category }}"
+            style="padding: 1.5rem; border-radius: 20px; transition: transform 0.3s; background: var(--glass-bg); border: 1px solid var(--glass-border); display: flex; flex-direction: column;">
+
+            <div style="display: flex; justify-content: space-between; align-items:flex-start; margin-bottom: 1rem;">
+                <div class="badge"
+                    style="background: rgba(139, 92, 246, 0.2); color: #8b5cf6; padding: 0.3rem 0.8rem; border-radius: 10px; font-size: 0.7rem; font-weight: bold;">
+                    {{ service.get_transport_category_display|upper }}
+                </div>
+                {# ── Rating badge: shows live avg rating if votes exist, else admin-set value ── #}
+                <div
+                    style="background: rgba(250,204,21,0.15); color: #facc15; padding: 0.3rem 0.7rem; border-radius: 8px; font-size: 0.8rem; font-weight: bold; display: flex; align-items: center; gap: 4px;">
+                    {% if service.avg_rating %}
+                    ⭐ {{ service.avg_rating }} / 5
+                    <span style="font-size:0.7rem; color: var(--text-dim);">({{ service.rating_count }})</span>
+                    {% elif service.rating %}
+                    ⭐ {{ service.rating }} / 5
+                    {% else %}
+                    ⭐ 5 / 5
+                    {% endif %}
+                </div>
+            </div>
+
+            <h3 style="margin-bottom: 0.5rem; font-size: 1.3rem;">{{ service.name }}</h3>
+
+            <div style="margin-bottom: 1.5rem; flex-grow: 1;">
+                {% if service.pickup_location %}
+                <p
+                    style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span>📍</span> {{ service.pickup_location }}
+                </p>
+                {% endif %}
+
+                {% if service.contact_number %}
+                <p
+                    style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span>📞</span> {{ service.contact_number }}
+                </p>
+                {% endif %}
+
+                <p style="font-size: 0.9rem; color: var(--text-dim); margin-top: 1rem; font-style: italic;">
+                    {{ service.description|truncatechars:100 }}
+                </p>
+            </div>
+
+            {# ── Interactive Star Rating Widget ── #}
+            <div class="rating-section"
+                style="margin-bottom: 1rem; padding: 0.8rem; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid var(--glass-border);">
+                <p
+                    style="font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                    Rate this service</p>
+
+                {% if user.is_authenticated %}
+                <form method="post" action="{% url 'rate-service' service.id %}" class="star-form"
+                    id="rating-form-{{ service.id }}">
+                    {% csrf_token %}
+                    <div class="star-rating" role="radiogroup" aria-label="Rate {{ service.name }}">
+                        {# Render 5 → 1 inputs (CSS flex-direction: row-reverse makes them display 1→5) #}
+                        <input type="radio" id="star5-svc{{ service.id }}" name="rating" value="5" {% if
+                            service.user_rating==5 %}checked{% endif %}>
+                        <label for="star5-svc{{ service.id }}" title="5 stars">★</label>
+                        <input type="radio" id="star4-svc{{ service.id }}" name="rating" value="4" {% if
+                            service.user_rating==4 %}checked{% endif %}>
+                        <label for="star4-svc{{ service.id }}" title="4 stars">★</label>
+                        <input type="radio" id="star3-svc{{ service.id }}" name="rating" value="3" {% if
+                            service.user_rating==3 %}checked{% endif %}>
+                        <label for="star3-svc{{ service.id }}" title="3 stars">★</label>
+                        <input type="radio" id="star2-svc{{ service.id }}" name="rating" value="2" {% if
+                            service.user_rating==2 %}checked{% endif %}>
+                        <label for="star2-svc{{ service.id }}" title="2 stars">★</label>
+                        <input type="radio" id="star1-svc{{ service.id }}" name="rating" value="1" {% if
+                            service.user_rating==1 %}checked{% endif %}>
+                        <label for="star1-svc{{ service.id }}" title="1 star">★</label>
+                    </div>
+                </form>
+                <p style="font-size: 0.7rem; color: var(--text-dim); margin-top: 0.4rem;">Click a star to submit your
+                    rating</p>
+                {% else %}
+                <p style="font-size: 0.8rem; color: var(--text-dim);">
+                    <a href="/accounts/login/?next=/transport/" style="color: #8b5cf6;">Log in</a> to rate this service
+                </p>
+                {% endif %}
+            </div>
+
+            <div class="card-footer"
+                style="padding-top: 1rem; border-top: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <span style="font-size: 0.8rem; color: var(--text-dim); display: block;">Starting at</span>
+                    <span style="font-size: 1.3rem; font-weight: 700; color: var(--accent-color);">₹{{
+                        service.price_per_unit }}</span>
+                </div>
+                <a href="{% url 'checkout-session' service.id %}" class="btn-primary"
+                    style="padding: 0.6rem 1.2rem; font-size: 0.9rem; text-decoration: none; border-radius: 8px;">Book
+                    Now</a>
+            </div>
+        </div>
+        {% empty %}
+        <p style="text-align: center; grid-column: 1 / -1; color: var(--text-dim); padding: 3rem;">No transport services
+            available at the moment. Please check back later.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // ── Filter buttons ──
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const serviceCards = document.querySelectorAll('.service-card');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => {
+                    b.classList.remove('active');
+                    b.style.background = 'transparent';
+                    b.style.color = 'var(--text-dim)';
+                    b.style.borderColor = 'rgba(255,255,255,0.1)';
+                });
+
+                btn.classList.add('active');
+                btn.style.background = 'var(--accent-color)';
+                btn.style.color = 'white';
+                btn.style.borderColor = 'transparent';
+
+                const filterValue = btn.getAttribute('data-filter');
+
+                serviceCards.forEach(card => {
+                    if (filterValue === 'all') {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = card.getAttribute('data-category') === filterValue ? 'flex' : 'none';
+                    }
+                });
+            });
+        });
+
+        // ── Auto-submit rating form when a star is clicked ──
+        document.querySelectorAll('.star-form input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', function () {
+                this.closest('form').submit();
+            });
+        });
+    });
+</script>
+
+<style>
+    .service-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        border-color: rgba(139, 92, 246, 0.3) !important;
+    }
+
+    .filter-btn {
+        transition: all 0.3s ease;
+    }
+
+    .filter-btn:hover:not(.active) {
+        background: rgba(255, 255, 255, 0.05) !important;
+        color: white !important;
+    }
+
+    /* ── Star Rating CSS ── */
+    .star-rating {
+        display: flex;
+        flex-direction: row-reverse;
+        /* renders 5→1 labels right-to-left visually 1→5 */
+        justify-content: flex-end;
+        gap: 2px;
+    }
+
+    .star-rating input[type="radio"] {
+        display: none;
+    }
+
+    .star-rating label {
+        font-size: 1.6rem;
+        color: rgba(255, 255, 255, 0.2);
+        cursor: pointer;
+        transition: color 0.15s ease, transform 0.1s ease;
+        line-height: 1;
+    }
+
+    /* Highlight on hover — the label itself and all siblings to its left (lower values) */
+    .star-rating label:hover,
+    .star-rating label:hover~label {
+        color: #facc15;
+        transform: scale(1.15);
+    }
+
+    /* Persist highlight for checked star and all stars to its "left" (higher-index siblings = lower value labels) */
+    .star-rating input[type="radio"]:checked~label {
+        color: #facc15;
+    }
+
+    /* The label directly after the checked input */
+    .star-rating input[type="radio"]:checked+label {
+        color: #facc15;
+    }
+</style>
+{% endblock %}

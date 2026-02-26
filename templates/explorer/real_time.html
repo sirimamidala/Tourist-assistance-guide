@@ -1,0 +1,331 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Real-Time Explorer - TouristAssist{% endblock %}
+
+{% block extra_head %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    :root {
+        --primary: #3b82f6;
+        --secondary: #8b5cf6;
+        --glass: rgba(15, 23, 42, 0.6);
+        --glass-border: rgba(255, 255, 255, 0.15);
+    }
+
+    .hero-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+    }
+
+    .hero-bg {
+        width: 100%;
+        height: 100%;
+        background-image: url('{% static "images/gps-bg.png" %}');
+        background-size: cover;
+        background-position: center;
+        filter: brightness(0.5) saturate(1.1);
+        animation: slowZoom 25s infinite alternate ease-in-out;
+    }
+
+    .hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at center, transparent, rgba(15, 23, 42, 0.85));
+    }
+
+    @keyframes slowZoom {
+        from {
+            transform: scale(1);
+        }
+
+        to {
+            transform: scale(1.1);
+        }
+    }
+
+    #map-container {
+        height: 500px;
+        width: 100%;
+        border-radius: 24px;
+        border: 1px solid var(--glass-border);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+        margin-bottom: 2.5rem;
+        z-index: 10;
+        background: rgba(15, 23, 42, 0.4);
+    }
+
+    .explorer-header h1 {
+        color: #ffffff;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    }
+
+    .explorer-header p {
+        color: #e2e8f0 !important;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .controls-panel {
+        background: var(--glass);
+        backdrop-filter: blur(25px);
+        border: 1px solid var(--glass-border);
+        border-radius: 28px;
+        padding: 2.5rem;
+        margin-bottom: 2.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        justify-content: center;
+        align-items: flex-end;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .control-group label {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #e2e8f0;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    select,
+    input {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid var(--glass-border);
+        color: white;
+        padding: 0.8rem 1.2rem;
+        border-radius: 12px;
+        font-size: 1rem;
+        outline: none;
+        transition: border-color 0.2s, background 0.2s;
+    }
+
+    select:focus,
+    input:focus {
+        border-color: var(--primary);
+        background: rgba(255, 255, 255, 0.12);
+    }
+
+    select option {
+        background: #0f172a;
+        color: #ffffff;
+    }
+
+    .btn-gps {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        padding: 0.8rem 2rem;
+        border-radius: 12px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: transform 0.2s, filter 0.2s, box-shadow 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-gps:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.1);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    }
+
+    .results-title {
+        color: #ffffff;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        margin-bottom: 1.5rem;
+    }
+
+    #results-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    /* Enhanced Leaflet Popup Styling */
+    .leaflet-popup-content-wrapper,
+    .leaflet-popup-tip {
+        background: rgba(15, 23, 42, 0.95) !important;
+        backdrop-filter: blur(10px);
+        color: #ffffff !important;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .leaflet-popup-content {
+        margin: 1rem 1.25rem;
+        line-height: 1.5;
+    }
+
+    .leaflet-popup-content strong {
+        color: var(--primary);
+        font-size: 1.1rem;
+    }
+
+    .place-card {
+        padding: 1.5rem;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: transform 0.3s, background 0.3s, border-color 0.3s, box-shadow 0.3s;
+        background: rgba(15, 23, 42, 0.7);
+        border: 1px solid var(--glass-border);
+        backdrop-filter: blur(10px);
+    }
+
+    .place-card:hover {
+        transform: translateY(-8px);
+        background: rgba(15, 23, 42, 0.85);
+        border-color: rgba(59, 130, 246, 0.5);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .place-card h3 {
+        color: #ffffff !important;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        font-size: 1.25rem;
+    }
+
+    .place-card p {
+        color: #f1f5f9 !important;
+        font-size: 1rem;
+        text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+        line-height: 1.4;
+    }
+
+    .rating {
+        color: #fbbf24;
+        font-weight: 700;
+    }
+
+    .source-badge {
+        font-size: 0.7rem;
+        opacity: 0.8;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--primary);
+    }
+
+    .no-results {
+        text-align: center;
+        padding: 3rem;
+        grid-column: 1 / -1;
+        color: #94a3b8;
+        font-size: 1.1rem;
+    }
+
+    .nav-link {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.9rem;
+        transition: color 0.2s;
+    }
+
+    .nav-link:hover {
+        color: white;
+    }
+
+    .card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hero-container">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+</div>
+
+<div class="explorer-wrapper"
+    style="width: 100%; max-width: 1200px; padding: 3rem 1.5rem; position: relative; z-index: 1; animation: fadeIn 0.8s ease-out;">
+    <div class="explorer-header">
+        <h1 style="font-size: 3rem; margin-bottom: 0.5rem;">🌍 Real-Time GPS Search</h1>
+        <p id="status-text" style="color: var(--text-dim); font-size: 1.1rem;">Click the button below to detect your
+            current location.</p>
+    </div>
+
+    <div class="controls-panel">
+        <button id="get-location-btn" class="btn-gps">
+            📡 Detect My Location
+        </button>
+
+        <div class="control-group">
+            <label>Radius: <span id="radius-val">5</span> km</label>
+            <input type="range" id="radius-input" value="5" min="1" max="50" style="width: 200px;">
+        </div>
+
+        <div class="control-group">
+            <label>Category</label>
+            <select id="category-select">
+                <option value="ATTRACTION">Tourist Attractions</option>
+                <option value="HOTEL">Hotels & Stays</option>
+                <option value="TRANSPORT">Transport & Bus Stations</option>
+                <option value="RESTAURANT">Restaurants</option>
+                <option value="TEMPLE">Religious Places</option>
+                <option value="HOSPITAL">Hospitals</option>
+            </select>
+        </div>
+
+        <button id="search-btn" class="btn-gps" style="background: var(--primary);">
+            🔍 Search Nearby
+        </button>
+
+        <input type="hidden" id="lat-input">
+        <input type="hidden" id="lng-input">
+    </div>
+
+    <div id="map-container"></div>
+
+    <h2 class="results-title">Nearby Discoveries</h2>
+    <div id="results-list">
+        <div class="no-results">Results will appear here once location is detected.</div>
+    </div>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{% static 'js/script.js' %}"></script>
+
+<style>
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+{% endblock %}

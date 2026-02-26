@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Booking Successful - Tourist Assistance{% endblock %}
+
+{% block content %}
+<div class="success-wrapper"
+    style="width: 100%; max-width: 800px; margin: 0 auto; text-align: center; animation: fadeIn 0.8s ease-out;">
+    <div class="success-card glass"
+        style="padding: 4rem 2rem; border-radius: 32px; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 40px 80px rgba(0,0,0,0.3);">
+        <div class="success-icon" style="font-size: 5rem; margin-bottom: 2rem; animation: bounce 2s infinite;">
+            🎉
+        </div>
+        <h1
+            style="font-size: 3rem; margin-bottom: 1rem; background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            {% if booking.service.type == 'GUIDE' %}Request Sent!{% else %}Booking Successful!{% endif %}</h1>
+        <p style="color: var(--text-dim); font-size: 1.25rem; margin-bottom: 3rem;">Status:
+            <span style="font-weight: 700; 
+                {% if booking.status == 'WAITING_APPROVAL' %} color: #fbbf24; {% else %} color: #4ade80; {% endif %}">
+                {{ booking.get_status_display }}
+            </span>
+        </p>
+
+        <div class="booking-details"
+            style="text-align: left; background: rgba(255, 255, 255, 0.03); border-radius: 20px; padding: 2rem; border: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 3rem;">
+            <h3
+                style="margin-bottom: 1.5rem; color: white; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">
+                Reservation Details</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div>
+                    <label
+                        style="color: var(--text-dim); display: block; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Service</label>
+                    <span style="font-size: 1.1rem; color: white;">{{ booking.service.name }}</span>
+                </div>
+                <div>
+                    <label
+                        style="color: var(--text-dim); display: block; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Type</label>
+                    <span style="font-size: 1.1rem; color: white;">{{ booking.service.get_type_display }}</span>
+                </div>
+                <div>
+                    <label
+                        style="color: var(--text-dim); display: block; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Booking
+                        ID</label>
+                    <span style="font-size: 1.1rem; color: white;">#{{ booking.id }}</span>
+                </div>
+                {% if booking.guest_name %}
+                <div>
+                    <label
+                        style="color: var(--text-dim); display: block; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Primary
+                        Guest</label>
+                    <span style="font-size: 1.1rem; color: white;">{{ booking.guest_name }}</span>
+                </div>
+                {% endif %}
+                <div>
+                    <label
+                        style="color: var(--text-dim); display: block; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Date</label>
+                    <span style="font-size: 1.1rem; color: white;">{{ booking.booking_date }}</span>
+                </div>
+                {% if booking.pickup_location %}
+                <div>
+                    <label
+                        style="color: var(--text-dim); display: block; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Pickup</label>
+                    <span style="font-size: 1.1rem; color: white;">{{ booking.pickup_location }}</span>
+                </div>
+                {% endif %}
+                {% if booking.drop_location %}
+                <div>
+                    <label
+                        style="color: var(--text-dim); display: block; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Drop</label>
+                    <span style="font-size: 1.1rem; color: white;">{{ booking.drop_location }}</span>
+                </div>
+                {% endif %}
+                <div>
+                    <label
+                        style="color: var(--text-dim); display: block; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Price</label>
+                    <span style="font-size: 1.1rem; color: var(--accent-color); font-weight: 700;">Payment Price</span>
+                </div>
+                <div>
+                    <label
+                        style="color: var(--text-dim); display: block; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Status</label>
+                    <span
+                        style="padding: 0.2rem 0.8rem; border-radius: 10px; background: rgba(34, 197, 94, 0.2); color: #4ade80; font-weight: 600; font-size: 0.9rem;">Booked</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions" style="display: flex; gap: 1.5rem; justify-content: center;">
+            <a href="{% url 'dashboard' %}" class="btn-primary"
+                style="padding: 1rem 2.5rem; text-decoration: none; border-radius: 16px; font-weight: 700;">Go to
+                Dashboard</a>
+            <a href="{% url 'booking-system' %}" class="btn-outline"
+                style="padding: 1rem 2.5rem; text-decoration: none; border-radius: 16px; font-weight: 700; border: 1px solid rgba(255,255,255,0.2); color: white;">Book
+                More</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes bounce {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-20px);
+        }
+    }
+</style>
+{% endblock %}

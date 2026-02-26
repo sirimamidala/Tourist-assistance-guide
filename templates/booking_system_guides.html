@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Book Services - Tourist Assistance{% endblock %}
+
+{% block extra_head %}
+<style>
+    .hero-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+    }
+
+    .hero-bg {
+        width: 100%;
+        height: 100%;
+        background-image: url('{% static "images/guide-bg.png" %}');
+        background-size: cover;
+        background-position: center;
+        filter: brightness(0.6) saturate(1.2);
+        animation: slowZoom 25s infinite alternate ease-in-out;
+    }
+
+    .hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at center, transparent, rgba(15, 23, 42, 0.8));
+    }
+
+    @keyframes slowZoom {
+        from {
+            transform: scale(1);
+        }
+
+        to {
+            transform: scale(1.1);
+        }
+    }
+
+    /* Improve visibility when guide background is active */
+    .guide-active .header h1,
+    .guide-active .service-card h3 {
+        color: #ffffff;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .guide-active .header p,
+    .guide-active .service-card p,
+    .guide-active .filter-btn:not(.active) {
+        color: #e2e8f0 !important;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .guide-active .service-card {
+        background: rgba(15, 23, 42, 0.7) !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
+    }
+
+    .guide-active .service-card p strong {
+        color: #ffffff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hero-container">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+</div>
+<div class="booking-wrapper guide-active"
+    style="width: 100%; max-width: 1200px; animation: fadeIn 0.8s ease-out; position: relative; z-index: 1;">
+    <div class="header" style="margin-bottom: 3rem; text-align: center;">
+        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Book Your Travel Essentials 🏨</h1>
+        <p style="color: var(--text-dim); font-size: 1.1rem;">Secure top-rated stays, transport, and expert local
+            guides.</p>
+    </div>
+
+    <div class="filter-bar glass"
+        style="display: flex; gap: 1rem; padding: 1rem; border-radius: 50px; margin-bottom: 3rem; justify-content: center; flex-wrap: wrap; align-items: center;">
+        <a href="{% url 'booking-system' %}" class="filter-btn"
+            style="padding: 0.5rem 1.5rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: var(--text-dim); cursor: pointer; text-decoration: none;">All
+            Services</a>
+        <a href="{% url 'booking-system' %}?type=HOTEL" class="filter-btn"
+            style="padding: 0.5rem 1.5rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: var(--text-dim); cursor: pointer; text-decoration: none;">Hotels</a>
+        <a href="{% url 'booking-system' %}?type=TRANSPORT" class="filter-btn"
+            style="padding: 0.5rem 1.5rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: var(--text-dim); cursor: pointer; text-decoration: none;">Transport</a>
+        <a href="{% url 'booking-system' %}?type=GUIDE" class="filter-btn active"
+            style="padding: 0.5rem 1.5rem; border-radius: 20px; border: none; background: var(--accent); color: white; cursor: pointer; text-decoration: none;">Local
+            Guides</a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'guide-register' %}" class="filter-btn"
+            style="padding: 0.5rem 1.5rem; border-radius: 20px; border: 1px solid rgba(56, 189, 248, 0.3); background: rgba(56, 189, 248, 0.1); color: var(--accent); cursor: pointer; text-decoration: none; margin-left: auto;">
+            ✓ Register as Guide
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="services-grid"
+        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem;">
+        {% for guide in guides %}
+        <div class="service-card glass"
+            style="padding: 1.5rem; border-radius: 20px; transition: transform 0.3s; background: var(--glass-bg); border: 1px solid var(--glass-border); display: flex; flex-direction: column;">
+            <div class="badge"
+                style="background: rgba(56, 189, 248, 0.2); color: var(--accent-color); padding: 0.3rem 0.8rem; border-radius: 10px; font-size: 0.7rem; font-weight: bold; width: fit-content; margin-bottom: 1rem;">
+                LOCAL GUIDE</div>
+
+            <h3 style="margin-bottom: 0.75rem; font-size: 1.25rem;">{{ guide.full_name }}</h3>
+
+            <div style="margin-bottom: 1rem; display: grid; gap: 0.4rem;">
+                <p style="font-size: 0.9rem; color: var(--text-dim); margin: 0;"><strong>📍</strong> {{ guide.location
+                    }}</p>
+                <p style="font-size: 0.9rem; color: var(--text-dim); margin: 0;"><strong>🗣️</strong> {{
+                    guide.languages_known }}</p>
+            </div>
+
+            <div
+                style="margin-bottom: 1rem; padding: 0.75rem; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                <p
+                    style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent-color); font-weight: 600; margin-bottom: 0.5rem;">
+                    Professional Info</p>
+                <p style="font-size: 0.85rem; color: var(--text-main); margin-bottom: 0.3rem;"><strong>📅
+                        Experience:</strong> {{ guide.experience_years }} years</p>
+                {% if guide.specialization %}
+                <p style="font-size: 0.85rem; color: var(--text-main); margin: 0;"><strong>🎯 Specialization:</strong>
+                    {{ guide.specialization }}</p>
+                {% endif %}
+            </div>
+
+            <div
+                style="margin-bottom: 1rem; padding: 0.75rem; background: rgba(56, 189, 248, 0.03); border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.05);">
+                <p
+                    style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent-color); font-weight: 600; margin-bottom: 0.5rem;">
+                    Pricing & Contact</p>
+                <p style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.3rem;">💰 ₹{{
+                    guide.price_per_day }}<span style="font-size: 0.8rem; font-weight: normal; color: var(--text-dim);">
+                        / day</span></p>
+                <p style="font-size: 0.85rem; color: var(--text-main); margin: 0;"><strong>📱 Contact:</strong> {{
+                    guide.contact_number }}</p>
+            </div>
+
+            <div style="margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--glass-border);">
+                <div style="margin-bottom: 1rem; display: grid; gap: 0.25rem;">
+                    <p style="font-size: 0.7rem; color: var(--text-dim); margin: 0;">📅 Registered: {{
+                        guide.created_at|date:"M d, Y" }}</p>
+                    <p style="font-size: 0.7rem; color: var(--text-dim); margin: 0;">🔄 Updated: {{
+                        guide.updated_at|date:"M d, Y" }}</p>
+                </div>
+
+                <div style="display: flex; gap: 0.5rem;">
+                    <a href="{% url 'guide-profile' guide.id %}" class="btn-primary"
+                        style="flex: 1; padding: 0.6rem; font-size: 0.85rem; text-decoration: none; text-align: center; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: white; border-radius: 8px;">View
+                        Profile</a>
+                    {% if guide.service %}
+                    <a href="{% url 'initiate-booking' guide.service.id %}" class="btn-primary"
+                        style="flex: 1; padding: 0.6rem; font-size: 0.85rem; text-decoration: none; text-align: center; border-radius: 8px;">Book
+                        Now</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        {% endfor %}
+    </div>
+
+    <!-- ═══ Become a Guide CTA Section ═══ -->
+    <div style="margin-top: 4rem; border-top: 1px solid var(--glass-border); padding-top: 3rem;">
+
+        {% if user.is_authenticated %}
+        {% if user.local_guides.all %}
+        <!-- User has guides -->
+        <div class="glass"
+            style="padding: 2rem 2.5rem; border-radius: 20px; background: rgba(56,189,248,0.05); border: 1px solid rgba(56,189,248,0.2); margin-top: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3 style="font-size: 1.2rem; margin: 0; color: var(--accent);">Your Registered Guides</h3>
+                <a href="{% url 'guide-register' %}"
+                    style="color: var(--accent); font-size: 0.9rem; text-decoration: none; font-weight: 600;">+ Register
+                    Another</a>
+            </div>
+            <div style="display: grid; gap: 1rem;">
+                {% for g in user.local_guides.all %}
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid var(--glass-border);">
+                    <div>
+                        <p style="font-weight: 600; margin: 0;">{{ g.full_name }}</p>
+                    </div>
+                    <a href="{% url 'guide-profile' g.id %}"
+                        style="font-size: 0.85rem; color: var(--accent); text-decoration: none;">View →</a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% else %}
+        <!-- Logged-in user, not yet a guide -->
+        <div class="glass"
+            style="padding: 2.5rem; border-radius: 24px; background: var(--glass-bg); border: 1px solid var(--glass-border); text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🗺️</div>
+            <h2 style="font-size: 1.7rem; margin-bottom: 0.75rem;">Are you a Local Expert?</h2>
+            <p style="color: var(--text-dim); font-size: 1rem; max-width: 520px; margin: 0 auto 1.5rem;">
+                Register as a Local Guide and help tourists explore like a local. Fill in your details — they'll be sent
+                to our admin team for review and stored securely in the database.
+            </p>
+
+            <!-- Process Steps -->
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem;">
+                <div
+                    style="background: rgba(56,189,248,0.08); border: 1px solid rgba(56,189,248,0.2); border-radius: 12px; padding: 0.75rem 1.25rem; min-width: 140px; text-align: center;">
+                    <p style="font-size: 1.4rem; margin-bottom: 0.3rem;">📋</p>
+                    <p style="font-size: 0.85rem; color: var(--text-dim); margin: 0;">Fill the form</p>
+                </div>
+                <div style="display: flex; align-items: center; color: var(--text-dim); font-size: 1.2rem;">→</div>
+                <div
+                    style="background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.2); border-radius: 12px; padding: 0.75rem 1.25rem; min-width: 140px; text-align: center;">
+                    <p style="font-size: 1.4rem; margin-bottom: 0.3rem;">🔍</p>
+                    <p style="font-size: 0.85rem; color: var(--text-dim); margin: 0;">Admin reviews</p>
+                </div>
+                <div style="display: flex; align-items: center; color: var(--text-dim); font-size: 1.2rem;">→</div>
+                <div
+                    style="background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); border-radius: 12px; padding: 0.75rem 1.25rem; min-width: 140px; text-align: center;">
+                    <p style="font-size: 1.4rem; margin-bottom: 0.3rem;">🌟</p>
+                    <p style="font-size: 0.85rem; color: var(--text-dim); margin: 0;">Go live!</p>
+                </div>
+            </div>
+
+            <a href="{% url 'guide-register' %}"
+                style="display: inline-block; padding: 0.85rem 2.5rem; background: linear-gradient(135deg, #38bdf8, #818cf8); color: white; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 1.05rem; box-shadow: 0 4px 20px rgba(56,189,248,0.3); transition: transform 0.2s;"
+                onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'">
+                ✓ Register as a Local Guide
+            </a>
+            <p style="color: var(--text-dim); font-size: 0.82rem; margin-top: 1rem;">
+                Your details will not go live until approved by admin.
+            </p>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <!-- Not logged in -->
+        <div class="glass"
+            style="padding: 2.5rem; border-radius: 24px; background: var(--glass-bg); border: 1px solid var(--glass-border); text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🗺️</div>
+            <h2 style="font-size: 1.7rem; margin-bottom: 0.75rem;">Want to become a Local Guide?</h2>
+            <p style="color: var(--text-dim); font-size: 1rem; max-width: 500px; margin: 0 auto 2rem;">
+                Log in or create an account to register as a local guide. Your details will be reviewed and stored by
+                our admin team before going live.
+            </p>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <a href="{% url 'login' %}"
+                    style="padding: 0.75rem 2rem; background: linear-gradient(135deg, #38bdf8, #818cf8); color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">
+                    Login to Register
+                </a>
+                <a href="{% url 'signup' %}"
+                    style="padding: 0.75rem 2rem; background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border); color: var(--text-dim); text-decoration: none; border-radius: 8px; font-weight: 600;">
+                    Create Account
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+
+</div>
+
+<style>
+    .service-card:hover {
+        transform: scale(1.02);
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .filter-btn:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--accent);
+    }
+</style>
+{% endblock %}

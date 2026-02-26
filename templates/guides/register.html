@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Register as Local Guide - Tourist Assist{% endblock %}
+
+{% block content %}
+<div style="width: 100%; max-width: 600px; padding: 2rem 1rem;">
+    <div style="text-align: center; margin-bottom: 3rem;">
+        <h1 style="font-size: 2rem; margin-bottom: 0.5rem;">🗺️ Become a Local Guide</h1>
+        <p style="color: var(--text-dim);">Share your expertise and start helping travelers today. Your profile goes
+            live instantly!</p>
+    </div>
+
+    <div class="glass"
+        style="padding: 2rem; border-radius: 20px; background: var(--glass-bg); border: 1px solid var(--glass-border);">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div
+                style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Name of the guide</label>
+                {{ form.full_name }}
+                {% if form.full_name.errors %}
+                <p style="color: #f87171; font-size: 0.85rem; margin-top: 0.25rem;">{{ form.full_name.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Address of the guide</label>
+                {{ form.location }}
+                {% if form.location.errors %}
+                <p style="color: #f87171; font-size: 0.85rem; margin-top: 0.25rem;">{{ form.location.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">languages known</label>
+                {{ form.languages_known }}
+                {% if form.languages_known.errors %}
+                <p style="color: #f87171; font-size: 0.85rem; margin-top: 0.25rem;">{{ form.languages_known.errors.0 }}
+                </p>
+                {% endif %}
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">year of experience</label>
+                    {{ form.experience_years }}
+                    {% if form.experience_years.errors %}
+                    <p style="color: #f87171; font-size: 0.85rem; margin-top: 0.25rem;">{{
+                        form.experience_years.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">price per day</label>
+                    {{ form.price_per_day }}
+                    {% if form.price_per_day.errors %}
+                    <p style="color: #f87171; font-size: 0.85rem; margin-top: 0.25rem;">{{ form.price_per_day.errors.0
+                        }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">contact number</label>
+                {{ form.contact_number }}
+                {% if form.contact_number.errors %}
+                <p style="color: #f87171; font-size: 0.85rem; margin-top: 0.25rem;">{{ form.contact_number.errors.0 }}
+                </p>
+                {% endif %}
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">specialization</label>
+                {{ form.specialization }}
+                {% if form.specialization.errors %}
+                <p style="color: #f87171; font-size: 0.85rem; margin-top: 0.25rem;">{{ form.specialization.errors.0 }}
+                </p>
+                {% endif %}
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">profile photo</label>
+                    {{ form.profile_photo }}
+                    <p style="font-size: 0.8rem; color: var(--text-dim); margin-top: 0.25rem;">Upload a professional
+                        photo</p>
+                    {% if form.profile_photo.errors %}
+                    <p style="color: #f87171; font-size: 0.85rem; margin-top: 0.25rem;">{{ form.profile_photo.errors.0
+                        }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">id proof</label>
+                    {{ form.id_proof }}
+                    <p style="font-size: 0.8rem; color: var(--text-dim); margin-top: 0.25rem;">Upload ID (verification
+                        required)</p>
+                    {% if form.id_proof.errors %}
+                    <p style="color: #f87171; font-size: 0.85rem; margin-top: 0.25rem;">{{ form.id_proof.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit"
+                    style="flex: 1; padding: 0.75rem; background: linear-gradient(135deg, #38bdf8, #818cf8); border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer;">
+                    ✓ Submit Registration
+                </button>
+                <a href="{% url 'booking-system' %}"
+                    style="flex: 1; padding: 0.75rem; background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border); border-radius: 8px; color: var(--text-dim); text-decoration: none; text-align: center; font-weight: 600; display: flex; align-items: center; justify-content: center;">
+                    ✕ Cancel
+                </a>
+            </div>
+
+            <p style="text-align: center; color: var(--text-dim); font-size: 0.85rem; margin-top: 1.5rem;">
+                <strong>Note:</strong> Your registration will be reviewed by our admin team before being published. You
+                will not appear in the guides list until approved.
+            </p>
+        </form>
+    </div>
+</div>
+
+<style>
+    input[type="text"],
+    input[type="email"],
+    input[type="phone"],
+    input[type="number"],
+    textarea,
+    input[type="file"] {
+        width: 100%;
+        padding: 0.75rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        color: var(--text-main);
+        font-family: 'Outfit', sans-serif;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="phone"]:focus,
+    input[type="number"]:focus,
+    textarea:focus,
+    input[type="file"]:focus {
+        outline: none;
+        background: rgba(255, 255, 255, 0.08);
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+    }
+
+    textarea {
+        resize: vertical;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Delete {{ hill_station.name }}{% endblock %}
+
+{% block extra_head %}
+<!-- Bootstrap 5 -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    .confirm-delete-container {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 18px;
+        padding: 3rem 2rem;
+        max-width: 500px;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    .confirm-delete-container h2 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #f87171;
+    }
+
+    .confirm-delete-container p {
+        color: var(--text-dim);
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+
+    .item-name {
+        color: var(--accent-color);
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .warning-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    .btn-delete {
+        background: #ef4444;
+        border: none;
+        color: #fff;
+        font-weight: 600;
+        border-radius: 10px;
+        padding: 0.75rem 2rem;
+        flex: 1;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    .btn-delete:hover {
+        background: #dc2626;
+        color: #fff;
+        text-decoration: none;
+    }
+
+    .btn-cancel {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--glass-border);
+        color: var(--text-main);
+        font-weight: 600;
+        border-radius: 10px;
+        padding: 0.75rem 2rem;
+        flex: 1;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.3s;
+    }
+
+    .btn-cancel:hover {
+        background: rgba(255, 255, 255, 0.15);
+        color: var(--text-main);
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5" style="max-width: 600px; margin: 0 auto; padding-left: 2rem; padding-right: 2rem;">
+    
+    <div class="confirm-delete-container">
+        <div class="warning-icon">⚠️</div>
+        
+        <h2>Delete Hill Station?</h2>
+        
+        <p>
+            Are you sure you want to delete <span class="item-name">{{ hill_station.name }}</span>?
+        </p>
+        
+        <p style="font-size: 0.9rem; color: #f87171;">
+            This action cannot be undone. All associated data will be permanently deleted.
+        </p>
+
+        <form method="POST" style="display: inline;">
+            {% csrf_token %}
+            <div class="action-buttons">
+                <button type="submit" class="btn btn-delete">🗑️ Yes, Delete it</button>
+                <a href="{% url 'hill-station-detail' hill_station.pk %}" class="btn btn-cancel">← Cancel</a>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

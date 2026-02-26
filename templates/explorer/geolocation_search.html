@@ -1,0 +1,305 @@
+{% extends "base.html" %}
+
+{% block title %}Find Nearby Places - Explorer{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    .glass:hover {
+        transform: translateY(-5px);
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .form-select,
+    input[type="text"] {
+        width: 100%;
+        padding: 0.75rem;
+        border-radius: 8px;
+        border: 1px solid var(--glass-border);
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-main);
+        font-size: 1rem;
+    }
+
+    .form-select:focus,
+    input[type="text"]:focus {
+        outline: none;
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+    }
+
+    #search-map {
+        height: 420px;
+        border-radius: 18px;
+        z-index: 1;
+        margin-bottom: 2rem;
+        border: 1px solid var(--glass-border);
+    }
+
+    .result-card {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 15px;
+        padding: 1.5rem;
+        overflow: hidden;
+        transition: transform 0.3s, border-color 0.3s;
+    }
+
+    .result-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(56, 189, 248, 0.35);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="width: 100%; max-width: 1200px; padding: 2rem 1rem;">
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">🗺️ Find Nearby Places</h1>
+        <p style="color: var(--text-dim); font-size: 1rem;">Search any city to discover tourist places, temples, hill
+            stations and beaches on the map</p>
+    </div>
+
+    <!-- Search Form -->
+    <div class="glass"
+        style="padding: 2rem; border-radius: 20px; margin-bottom: 2rem; max-width: 800px; margin-left: auto; margin-right: auto;">
+        <form method="GET" id="search-form">
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-main);">📍
+                    Location</label>
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
+                    <div style="position: relative; flex: 1; display: flex;">
+                        <input type="text" name="location_name" id="location-input"
+                            placeholder="Enter city name (e.g. Warangal, Hyderabad, Ooty...)"
+                            value="{{ form.location_name.value|default:'' }}"
+                            style="flex: 1; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.05); color: var(--text-main);">
+                        <button type="button" id="clear-gps-btn" title="Clear GPS"
+                            style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #ef4444; cursor: pointer; display: {% if form.latitude.value %}block{% else %}none{% endif %}; font-size: 1.2rem;">
+                            ✕
+                        </button>
+                    </div>
+                    <button type="button" id="geolocation-btn"
+                        style="padding: 0.75rem 1.5rem; background: var(--accent-color); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; white-space: nowrap;">
+                        📡 Use My Location
+                    </button>
+                </div>
+                <input type="hidden" name="latitude" id="latitude" value="{{ form.latitude.value|default:'' }}">
+                <input type="hidden" name="longitude" id="longitude" value="{{ form.longitude.value|default:'' }}">
+                <small style="color: var(--text-dim);">Type a city name or click "Use My Location" to search by
+                    GPS</small>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                <div>
+                    <label for="{{ form.place_type.id_for_label }}"
+                        style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-main);">🎯
+                        Place Type</label>
+                    {{ form.place_type }}
+                </div>
+                <div>
+                    <label for="{{ form.search_radius.id_for_label }}"
+                        style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-main);">📏
+                        Search Radius</label>
+                    {{ form.search_radius }}
+                </div>
+            </div>
+
+            <div style="text-align: center;">
+                <button type="submit"
+                    style="padding: 0.75rem 2.5rem; background: linear-gradient(135deg, var(--accent-color), #8b5cf6); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem;">
+                    🔍 Search Places
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Results -->
+    {% if search_performed %}
+    {% if places %}
+    <div
+        style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <h2 style="color: var(--accent-color); margin: 0;">Found {{ total_places }} place{{ total_places|pluralize }}
+        </h2>
+        {% if search_lat and search_lng %}
+        <span style="color: var(--text-dim); font-size: 0.85rem;">📍 Searching from: {{ search_lat|floatformat:4 }}, {{
+            search_lng|floatformat:4 }}</span>
+        {% endif %}
+    </div>
+
+    <div id="search-map"></div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem;">
+        {% for place in places %}
+        <div class="result-card">
+            {% if place.image %}
+            <div
+                style="width: 100%; height: 200px; background: var(--glass-border); border-radius: 10px; margin-bottom: 1rem; overflow: hidden;">
+                <img src="{{ place.image.url }}" alt="{{ place.name }}"
+                    style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+            {% endif %}
+
+            <div style="margin-bottom: 0.5rem; display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                <span
+                    style="background: rgba(56, 189, 248, 0.2); color: var(--accent-color); padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
+                    {% if place.result_type == 'hill_station' %}
+                    🏔️ Hill Station
+                    {% else %}
+                    {{ place.get_category_display }}
+                    {% endif %}
+                </span>
+                {% if place.distance_km %}
+                <span
+                    style="background: rgba(34,197,94,0.15); color: #4ade80; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
+                    📏 {{ place.distance_km }} km
+                </span>
+                {% endif %}
+            </div>
+
+            <h3 style="margin-bottom: 0.5rem; font-size: 1.2rem;">{{ place.name }}</h3>
+            <p style="color: var(--text-dim); margin-bottom: 0.75rem; font-size: 0.9rem;">
+                📍 {{ place.location }}
+                {% if place.result_type == 'hill_station' %}, {{ place.state }}{% endif %}
+            </p>
+
+            <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 1rem; line-height: 1.5;">
+                {{ place.description|truncatewords:20 }}
+            </p>
+
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                {% if place.result_type == 'hill_station' %}
+                <a href="{% url 'hill-station-detail' place.pk %}"
+                    style="padding: 0.5rem 1rem; background: var(--accent-color); color: white; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.88rem;">View
+                    Details →</a>
+                {% else %}
+                <a href="{% url 'explorer-detail' place.pk %}"
+                    style="padding: 0.5rem 1rem; background: var(--accent-color); color: white; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.88rem;">View
+                    Details →</a>
+                {% endif %}
+                {% if place.latitude and place.longitude %}
+                <a href="https://www.google.com/maps/dir/?api=1&destination={{ place.latitude }},{{ place.longitude }}"
+                    target="_blank" rel="noopener"
+                    style="padding: 0.5rem 1rem; background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border); color: var(--text-dim); border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.88rem;">🧭
+                    Navigate</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 3rem 1rem; background: var(--glass-bg); border-radius: 15px;">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">🔍</div>
+        <h2 style="color: var(--text-dim);">No places found</h2>
+        <p style="color: var(--text-dim); margin-bottom: 1.5rem;">Try increasing the search radius, removing the place
+            type filter, or searching a different city.</p>
+        <a href="{% url 'geolocation-search' %}"
+            style="color: var(--accent-color); text-decoration: none; font-weight: 600;">← Back to Search</a>
+    </div>
+    {% endif %}
+    {% else %}
+    <div style="text-align: center; padding: 3rem 1rem; background: var(--glass-bg); border-radius: 15px;">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">🌍</div>
+        <h2 style="color: var(--text-dim);">Get Started</h2>
+        <p style="color: var(--text-dim); margin-bottom: 1.5rem;">Enter a city name or click "Use My Location" to find
+            nearby tourist places, temples, beaches & hill stations</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    document.getElementById('geolocation-btn').addEventListener('click', function () {
+        if (navigator.geolocation) {
+            this.textContent = '📡 Getting location...';
+            this.disabled = true;
+
+            navigator.geolocation.getCurrentPosition(
+                function (position) {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    document.getElementById('latitude').value = lat;
+                    document.getElementById('longitude').value = lon;
+                    document.getElementById('location-input').value = lat.toFixed(4) + ', ' + lon.toFixed(4);
+                    document.getElementById('location-input').style.borderColor = 'var(--accent-color)';
+                    document.getElementById('clear-gps-btn').style.display = 'block';
+                    document.getElementById('geolocation-btn').textContent = '✓ Searching...';
+
+                    // Auto-submit form
+                    setTimeout(() => {
+                        document.getElementById('search-form').submit();
+                    }, 500);
+                },
+                function (error) {
+                    alert('Error getting location: ' + error.message);
+                    document.getElementById('geolocation-btn').textContent = '📡 Use My Location';
+                    document.getElementById('geolocation-btn').disabled = false;
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        } else {
+            alert('Geolocation is not supported by your browser');
+        }
+        document.getElementById('clear-gps-btn').addEventListener('click', function () {
+            document.getElementById('latitude').value = '';
+            document.getElementById('longitude').value = '';
+            document.getElementById('location-input').value = '';
+            document.getElementById('location-input').style.borderColor = 'var(--glass-border)';
+            this.style.display = 'none';
+            document.getElementById('geolocation-btn').textContent = '📡 Use My Location';
+            document.getElementById('geolocation-btn').disabled = false;
+        });
+</script>
+
+{% if search_performed and places %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var centerLat = {{ search_lat|default:"20.5937" }};
+    var centerLng = {{ search_lng|default:"78.9629" }};
+
+    var map = L.map('search-map').setView([centerLat, centerLng], 10);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    {% if search_lat and search_lng %}
+    L.circleMarker([centerLat, centerLng], {
+        radius: 10, fillColor: '#ef4444', color: '#fff', weight: 2, fillOpacity: 0.9
+    }).addTo(map).bindPopup('<strong>📍 Your Search Location</strong>');
+    {% endif %}
+
+    var bounds = [[centerLat, centerLng]];
+    {% for place in places %}
+    {% if place.latitude and place.longitude %}
+    (function () {
+        var lat = {{ place.latitude }};
+    var lng = {{ place.longitude }};
+    var name = '{{ place.name|escapejs }}';
+    var loc = '{{ place.location|escapejs }}';
+    var dist = '{{ place.distance_km|default:"" }}';
+    var cat = '{% if place.result_type == "hill_station" %}🏔️ Hill Station{% else %}{{ place.get_category_display|escapejs }}{% endif %}';
+    {% if place.result_type == 'hill_station' %}
+    var url = '{% url "hill-station-detail" place.pk %}';
+    {% else %}
+    var url = '{% url "explorer-detail" place.pk %}';
+    {% endif %}
+
+    var popupContent = '<a href="' + url + '" style="font-weight:700;font-size:1rem;color:#38bdf8;">' + name + '</a>';
+    popupContent += '<br><span style="color:#666;">📍 ' + loc + '</span>';
+    popupContent += '<br><span style="color:#8b5cf6;font-size:0.85rem;">' + cat + '</span>';
+    if (dist) popupContent += ' · <span style="color:#4ade80;font-weight:600;">' + dist + ' km</span>';
+    popupContent += '<br><a href="https://www.google.com/maps/dir/?api=1&destination=' + lat + ',' + lng + '" target="_blank" style="color:#38bdf8;font-size:0.85rem;">🧭 Navigate</a>';
+
+    L.marker([lat, lng]).addTo(map).bindPopup(popupContent);
+    bounds.push([lat, lng]);
+    }) ();
+    {% endif %}
+    {% endfor %}
+
+    if (bounds.length > 1) {
+        map.fitBounds(bounds, { padding: [40, 40] });
+    }
+});
+</script>
+{% endif %}
+{% endblock %}

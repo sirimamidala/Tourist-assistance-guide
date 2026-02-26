@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Book {{ service.name }} - Tourist Assistance{% endblock %}
+
+{% block content %}
+<div class="booking-form-wrapper"
+    style="width: 100%; max-width: 600px; margin: 0 auto; animation: fadeIn 0.8s ease-out;">
+    <div class="form-card glass"
+        style="padding: 3rem; border-radius: 32px; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 40px 80px rgba(0,0,0,0.3);">
+        <div style="text-align: center; margin-bottom: 2.5rem;">
+            <div class="service-icon" style="font-size: 3.5rem; margin-bottom: 1rem;">
+                {% if service.type == 'HOTEL' %}🏨{% elif service.type == 'TRANSPORT' %}🚗{% else %}🤝{% endif %}
+            </div>
+            <h1 style="font-size: 2.2rem; margin-bottom: 0.5rem; color: white;">Book {{ service.name }}</h1>
+            <p style="color: var(--text-dim);">Please provide your booking details below.</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div style="margin-bottom: 2rem;">
+                <label
+                    style="display: block; color: var(--text-dim); margin-bottom: 0.8rem; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;">Primary
+                    Guest Name</label>
+                {{ form.guest_name }}
+            </div>
+
+            <div style="margin-bottom: 2rem;">
+                <label
+                    style="display: block; color: var(--text-dim); margin-bottom: 0.8rem; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;">Desired
+                    Date</label>
+                {{ form.booking_date }}
+            </div>
+
+            <div style="margin-bottom: 2.5rem;">
+                <label
+                    style="display: block; color: var(--text-dim); margin-bottom: 0.8rem; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;">
+                    {% if service.type == 'HOTEL' %}Number of Nights / Rooms{% else %}Quantity / Persons{% endif %}
+                </label>
+                {{ form.quantity }}
+            </div>
+
+            {% if service.type == 'TRANSPORT' %}
+            <div style="margin-bottom: 2rem;">
+                <label
+                    style="display: block; color: var(--text-dim); margin-bottom: 0.8rem; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;">Pickup
+                    Location</label>
+                {{ form.pickup_location }}
+            </div>
+
+            <div style="margin-bottom: 2rem;">
+                <label
+                    style="display: block; color: var(--text-dim); margin-bottom: 0.8rem; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;">Drop
+                    Location</label>
+                {{ form.drop_location }}
+            </div>
+            {% endif %}
+
+            <div class="price-summary"
+                style="padding: 1.5rem; background: rgba(255,255,255,0.05); border-radius: 16px; margin-bottom: 2.5rem; border: 1px dashed rgba(255,255,255,0.2);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: var(--text-dim);">Base Price:</span>
+                    <span style="color: white; font-weight: 600;">₹{{ service.price_per_unit }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+                    <span style="color: var(--accent-color); font-weight: 700;">Total Estimate:</span>
+                    <span id="total-price-display"
+                        style="color: var(--accent-color); font-weight: 800; font-size: 1.4rem;">
+                        ₹{{service.price_per_unit }}</span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary"
+                style="width: 100%; padding: 1.2rem; border-radius: 16px; font-weight: 800; font-size: 1.1rem; border: none; cursor: pointer; transition: all 0.3s ease;">
+                Proceed to Payment
+            </button>
+            <a href="{% url 'booking-system' %}"
+                style="display: block; text-align: center; margin-top: 1.5rem; color: var(--text-dim); text-decoration: none; font-size: 0.9rem;">Cancel
+                and Go Back</a>
+        </form>
+    </div>
+</div>
+
+<script>
+    const pricePerUnit = {{ service.price_per_unit }};
+    const quantityInput = document.querySelector('input[name="quantity"]');
+    const totalDisplay = document.getElementById('total-price-display');
+
+    quantityInput.addEventListener('input', () => {
+        const qty = parseInt(quantityInput.value) || 0;
+        const total = (qty * pricePerUnit).toFixed(2);
+        totalDisplay.textContent = `₹${total}`;
+    });
+</script>
+
+<style>
+    .form-control {
+        width: 100%;
+        padding: 1rem 1.5rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        color: white;
+        font-size: 1rem;
+        outline: none;
+        transition: border-color 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: var(--accent-color);
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        filter: brightness(1.1);
+    }
+</style>
+{% endblock %}

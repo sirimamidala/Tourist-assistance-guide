@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile - Tourist Assistance{% endblock %}
+
+{% block content %}
+<div class="profile-container" style="width: 100%; max-width: 800px; animation: fadeIn 0.8s ease-out;">
+    <div class="profile-card"
+        style="background: var(--glass-bg); backdrop-filter: blur(15px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 3rem; position: relative; overflow: hidden;">
+        <div class="profile-glow"
+            style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(56, 189, 248, 0.2) 0%, transparent 70%); z-index: 0;">
+        </div>
+
+        <div style="position: relative; z-index: 1;">
+            <div style="display: flex; align-items: center; gap: 2rem; margin-bottom: 2.5rem;">
+                <div class="profile-avatar"
+                    style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-color), #818cf8); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: white; border: 4px solid var(--glass-border);">
+                    {{ user.username|first|upper }}
+                </div>
+                <div>
+                    <h1 style="font-size: 2.2rem; margin: 0; color: var(--text-main);">{{ user.username }}</h1>
+                    <p style="color: var(--accent-color); font-weight: 500; margin: 0.2rem 0 0 0;">{{
+                        user.profile.role|title }}</p>
+                </div>
+            </div>
+
+            <div class="profile-info-grid"
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                <div class="info-item"
+                    style="padding: 1.2rem; background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px solid var(--glass-border);">
+                    <span
+                        style="display: block; color: var(--text-dim); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.4rem;">Email
+                        Address</span>
+                    <span style="font-size: 1.1rem; color: var(--text-main);">{{ user.email|default:"Not provided"
+                        }}</span>
+                </div>
+
+                <div class="info-item"
+                    style="padding: 1.2rem; background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px solid var(--glass-border);">
+                    <span
+                        style="display: block; color: var(--text-dim); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.4rem;">Member
+                        Since</span>
+                    <span style="font-size: 1.1rem; color: var(--text-main);">{{ user.date_joined|date:"F Y" }}</span>
+                </div>
+
+                <div class="info-item"
+                    style="padding: 1.2rem; background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px solid var(--glass-border);">
+                    <span
+                        style="display: block; color: var(--text-dim); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.4rem;">Nationality</span>
+                    <span style="font-size: 1.1rem; color: var(--text-main);">{{
+                        user.profile.nationality|default:"Citizen of the World" }}</span>
+                </div>
+
+                <div class="info-item"
+                    style="padding: 1.2rem; background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px solid var(--glass-border);">
+                    <span
+                        style="display: block; color: var(--text-dim); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.4rem;">Bio</span>
+                    <p style="font-size: 1rem; color: var(--text-main); margin: 0; line-height: 1.5;">{{
+                        user.profile.bio|default:"No bio yet. Start your journey today!" }}</p>
+                </div>
+            </div>
+
+            <div style="margin-top: 3rem; display: flex; gap: 1rem;">
+                <a href="{% url 'dashboard' %}" class="btn-primary"
+                    style="text-decoration: none; padding: 0.8rem 2rem; border-radius: 12px; font-weight: 600;">Go to
+                    Dashboard</a>
+                <a href="{% url 'logout' %}" class="btn-outline"
+                    style="text-decoration: none; padding: 0.8rem 2rem; border-radius: 12px; border: 1px solid var(--glass-border); color: var(--text-dim);">Logout</a>
+            </div>
+
+            {% if user.local_guides.all %}
+            <!-- User has guides -->
+            <div class="glass"
+                style="padding: 2rem 2.5rem; border-radius: 20px; background: rgba(56,189,248,0.05); border: 1px solid rgba(56,189,248,0.2); margin-top: 2.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3 style="font-size: 1.2rem; margin: 0; color: var(--accent-color);">Your Registered Guides</h3>
+                    <a href="{% url 'guide-register' %}"
+                        style="color: var(--accent-color); font-size: 0.9rem; text-decoration: none; font-weight: 600;">+
+                        Register Another</a>
+                </div>
+                <div style="display: grid; gap: 1rem;">
+                    {% for g in user.local_guides.all %}
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid var(--glass-border);">
+                        <div>
+                            <p style="font-weight: 600; margin: 0;">{{ g.full_name }}</p>
+                        </div>
+                        <a href="{% url 'guide-profile' g.id %}"
+                            style="font-size: 0.85rem; color: var(--accent-color); text-decoration: none;">View Detail
+                            →</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--accent-color), #6366f1);
+        color: white;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(56, 189, 248, 0.3);
+    }
+
+    .btn-outline:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-main);
+    }
+</style>
+{% endblock %}

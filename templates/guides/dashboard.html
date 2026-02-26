@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Guide Dashboard - Tourist Assistance{% endblock %}
+
+{% block content %}
+<div class="guide-dashboard-wrapper"
+    style="width: 100%; max-width: 1000px; padding: 2rem 1rem; animation: fadeIn 0.8s ease-out;">
+    <div class="header" style="margin-bottom: 3rem;">
+        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">🔧 Guide Management Dashboard</h1>
+        <p style="color: var(--text-dim); font-size: 1.1rem;">Manage your booking requests and track your confirmed
+            trips.</p>
+    </div>
+
+    <!-- ═══ Pending Requests Section ═══ -->
+    <section style="margin-bottom: 4rem;">
+        <h2
+            style="font-size: 1.5rem; margin-bottom: 1.5rem; color: var(--accent-color); display: flex; align-items: center; gap: 0.5rem;">
+            ⏳ Pending Requests
+            <span
+                style="font-size: 0.8rem; background: rgba(251, 191, 36, 0.2); color: #fbbf24; padding: 0.2rem 0.6rem; border-radius: 12px;">{{
+                pending_requests|length }}</span>
+        </h2>
+
+        <div style="display: grid; gap: 1.5rem;">
+            {% for booking_request in pending_requests %}
+            <div class="glass"
+                style="padding: 1.5rem 2rem; border-radius: 20px; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+                <div style="flex: 1; min-width: 200px;">
+                    <p
+                        style="font-size: 0.8rem; color: var(--text-dim); margin: 0; text-transform: uppercase; letter-spacing: 1px;">
+                        Booking Request From</p>
+                    <h3 style="margin: 0.2rem 0 0.5rem; color: white;">{{ booking_request.user.username }}</h3>
+                    <div style="display: flex; gap: 1.5rem; font-size: 0.9rem; color: var(--text-dim);">
+                        <span>📅 {{ booking_request.booking_date }}</span>
+                        <span>👤 {{ booking_request.quantity }} Person(s)</span>
+                        <span>💰 ₹{{ booking_request.total_price }}</span>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <a href="{% url 'approve-booking' booking_request.id %}"
+                        style="padding: 0.6rem 1.5rem; background: #22c55e; color: white; border-radius: 8px; font-weight: 600; text-decoration: none; font-size: 0.9rem; display: flex; align-items: center; gap: 0.4rem;">
+                        Check Accept
+                    </a>
+                    <a href="{% url 'reject-booking' booking_request.id %}"
+                        style="padding: 0.6rem 1.5rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; border-radius: 8px; font-weight: 600; text-decoration: none; font-size: 0.9rem;">
+                        Decline
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div
+                style="text-align: center; padding: 3rem; background: rgba(255,255,255,0.02); border-radius: 20px; border: 1px dashed var(--glass-border);">
+                <p style="color: var(--text-dim); margin: 0;">No pending requests at the moment. You're all caught up!
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- ═══ Confirmed Bookings Section ═══ -->
+    <section>
+        <h2
+            style="font-size: 1.5rem; margin-bottom: 1.5rem; color: var(--accent-color); display: flex; align-items: center; gap: 0.5rem;">
+            ✅ Confirmed Trips
+        </h2>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+            {% for booking in confirmed_bookings %}
+            <div class="glass"
+                style="padding: 1.5rem; border-radius: 16px; background: rgba(34, 197, 94, 0.03); border: 1px solid rgba(34, 197, 94, 0.2);">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                    <div>
+                        <h4 style="margin: 0; color: white;">{{ booking.user.username }}</h4>
+                        <p style="font-size: 0.8rem; color: var(--text-dim); margin: 0.2rem 0 0;">ID: #{{ booking.id }}
+                        </p>
+                    </div>
+                    <span
+                        style="font-size: 0.75rem; background: rgba(34, 197, 94, 0.2); color: #4ade80; padding: 0.2rem 0.6rem; border-radius: 8px; font-weight: 600;">BOOKED</span>
+                </div>
+
+                <div
+                    style="font-size: 0.9rem; color: var(--text-dim); border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1rem;">
+                    <div style="margin-bottom: 0.4rem;">📅 <strong>Date:</strong> {{ booking.booking_date }}</div>
+                    <div style="margin-bottom: 0.4rem;">👥 <strong>Group size:</strong> {{ booking.quantity }}</div>
+                    <div style="margin-bottom: 0.4rem;">📍 <strong>Service:</strong> {{ booking.service.name }}</div>
+                </div>
+            </div>
+            {% empty %}
+            <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: var(--text-dim);">
+                No confirmed trips yet.
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <div style="margin-top: 4rem; text-align: center;">
+        <a href="{% url 'profile' %}" style="color: var(--text-dim); text-decoration: none; font-size: 0.9rem;">← Back
+            to My Account</a>
+    </div>
+</div>
+
+<style>
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+{% endblock %}

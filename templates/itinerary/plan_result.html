@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+{% block title %}Your Itinerary — Tourist Assist{% endblock %}
+
+{% block extra_head %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    .result-hero {
+        background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(139, 92, 246, 0.15));
+        border-radius: 20px;
+        padding: 2rem;
+        border: 1px solid var(--glass-border);
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .meta-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 0.3rem 0.8rem;
+        font-size: 0.83rem;
+        color: var(--text-dim);
+        margin: 0.2rem;
+    }
+
+    .day-section {
+        margin-bottom: 2.5rem;
+    }
+
+    .day-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.2rem;
+    }
+
+    .day-badge {
+        background: linear-gradient(135deg, #38bdf8, #818cf8);
+        border-radius: 50%;
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1rem;
+        color: white;
+        flex-shrink: 0;
+    }
+
+    .day-line {
+        flex: 1;
+        height: 2px;
+        background: linear-gradient(to right, rgba(56, 189, 248, 0.3), transparent);
+        border-radius: 2px;
+    }
+
+    .place-cards-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.2rem;
+    }
+
+    .place-card {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: transform 0.25s, box-shadow 0.25s;
+    }
+
+    .place-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .place-img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        background: rgba(255, 255, 255, 0.05);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+    }
+
+    .place-img img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+    }
+
+    .place-body {
+        padding: 1.2rem;
+    }
+
+    .place-name {
+        font-size: 1.05rem;
+        font-weight: 600;
+        margin-bottom: 0.3rem;
+    }
+
+    .place-location {
+        color: var(--text-dim);
+        font-size: 0.83rem;
+        margin-bottom: 0.7rem;
+    }
+
+    .place-desc {
+        color: var(--text-dim);
+        font-size: 0.875rem;
+        line-height: 1.5;
+        margin-bottom: 0.8rem;
+    }
+
+    .place-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .cost-badge {
+        background: rgba(56, 189, 248, 0.12);
+        border: 1px solid rgba(56, 189, 248, 0.2);
+        color: #38bdf8;
+        border-radius: 8px;
+        padding: 0.25rem 0.65rem;
+        font-size: 0.82rem;
+        font-weight: 600;
+    }
+
+    .interest-tag {
+        background: rgba(139, 92, 246, 0.12);
+        border: 1px solid rgba(139, 92, 246, 0.25);
+        color: #a78bfa;
+        border-radius: 8px;
+        padding: 0.25rem 0.65rem;
+        font-size: 0.75rem;
+        text-transform: capitalize;
+    }
+
+    .btn-save {
+        background: linear-gradient(135deg, #38bdf8, #818cf8);
+        border: none;
+        border-radius: 12px;
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: white;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(56, 189, 248, 0.4);
+    }
+
+    .btn-back {
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
+        color: var(--text-dim);
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-back:hover {
+        background: rgba(255, 255, 255, 0.12);
+        color: var(--text-main);
+    }
+
+    .empty-day {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-dim);
+        border: 2px dashed rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="width:100%;max-width:960px;padding:1rem 0 3rem;">
+
+    <!-- Header -->
+    <div class="result-hero">
+        <div>
+            <h1 style="font-size:1.8rem;font-weight:700;margin-bottom:0.5rem;">
+                🗺️ {{ form_data.destination }} Itinerary
+            </h1>
+            <div style="display:flex;flex-wrap:wrap;gap:0.3rem;margin-top:0.5rem;">
+                <span class="meta-badge">📅 {{ form_data.start_date }} → {{ form_data.end_date }}</span>
+                <span class="meta-badge">🌤️ {{ form_data.num_days }} Days</span>
+                <span class="meta-badge">
+                    💰
+                    {% if form_data.budget == 'economy' %}Economy
+                    {% elif form_data.budget == 'moderate' %}Moderate
+                    {% else %}Luxury{% endif %}
+                </span>
+            </div>
+        </div>
+        <div style="display:flex;gap:0.8rem;flex-wrap:wrap;">
+            <a href="{% url 'itinerary-create' %}" class="btn-back">← Edit Preferences</a>
+        </div>
+    </div>
+
+    {% if messages %}
+    {% for msg in messages %}
+    <div class="alert alert-warning"
+        style="border-radius:12px;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;">
+        {{ msg }}</div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- Day-wise itinerary -->
+    {% if generated_days %}
+    {% for day in generated_days %}
+    <div class="day-section">
+        <div class="day-header">
+            <div class="day-badge">{{ day.day_number }}</div>
+            <h2 style="font-size:1.2rem;font-weight:600;margin:0;">Day {{ day.day_number }}</h2>
+            <div class="day-line"></div>
+        </div>
+
+        {% if day.places %}
+        <div class="place-cards-row">
+            {% for place in day.places %}
+            <div class="place-card">
+                <div class="place-img">
+                    {% if place.image %}
+                    <img src="{{ place.image.url }}" alt="{{ place.name }}">
+                    {% elif place.image_url %}
+                    <img src="{{ place.image_url }}" alt="{{ place.name }}">
+                    {% else %}
+                    {% if place.interest_category == 'temples' %}🛕
+                    {% elif place.interest_category == 'adventure' %}🏔️
+                    {% elif place.interest_category == 'hill_stations' %}⛰️
+                    {% elif place.interest_category == 'food' %}🍜
+                    {% elif place.interest_category == 'shopping' %}🛍️
+                    {% elif place.interest_category == 'beaches' %}🏖️
+                    {% elif place.interest_category == 'historical' %}🏛️
+                    {% else %}🌿{% endif %}
+                    {% endif %}
+                </div>
+                <div class="place-body">
+                    <div class="place-name">{{ place.name }}</div>
+                    <div class="place-location">📍 {{ place.location }}</div>
+                    <div class="place-desc">{{ place.description|truncatewords:20 }}</div>
+                    <div class="place-footer">
+                        <span class="cost-badge">₹{{ place.estimated_cost }}</span>
+                        <span class="interest-tag">{{ place.get_interest_category_display }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-day">No places found for this day.</div>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <!-- Save action -->
+    <div
+        style="text-align:center;margin-top:2rem;padding:2rem;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:18px;">
+        <h3 style="margin-bottom:0.5rem;">Love this plan? Save it! 💾</h3>
+        <p style="color:var(--text-dim);margin-bottom:1.5rem;">Save your itinerary to access, edit, or download it
+            anytime.</p>
+        <form method="POST" action="{% url 'itinerary-save' %}">
+            {% csrf_token %}
+            <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+                <a href="{% url 'itinerary-create' %}" class="btn-back">🔄 Regenerate</a>
+                <button type="submit" class="btn-save">💾 Save Itinerary</button>
+            </div>
+        </form>
+    </div>
+
+    {% else %}
+    <div class="empty-day" style="padding:4rem;">
+        <div style="font-size:3rem;margin-bottom:1rem;">🤔</div>
+        <h3>No places found!</h3>
+        <p>Try different interests or a broader budget range.</p>
+        <a href="{% url 'itinerary-create' %}" class="btn-back" style="display:inline-block;margin-top:1rem;">← Try
+            Again</a>
+    </div>
+    {% endif %}
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

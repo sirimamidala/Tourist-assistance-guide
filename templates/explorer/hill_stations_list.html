@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Hill Stations – Explorer{% endblock %}
+
+{% block extra_head %}
+<!-- Bootstrap 5 -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    .explorer-hero {
+        background: linear-gradient(135deg, rgba(56, 189, 248, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
+        border-radius: 20px;
+        padding: 3rem 2rem;
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .explorer-hero h1 {
+        font-size: 2.6rem;
+        font-weight: 700;
+    }
+
+    .explorer-hero p {
+        color: var(--text-dim);
+        font-size: 1.1rem;
+    }
+
+    .search-filter-section {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 18px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .search-filter-section h5 {
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .hill-station-card {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 18px;
+        overflow: hidden;
+        transition: transform 0.3s, box-shadow 0.3s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .hill-station-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+        border-color: rgba(56, 189, 248, 0.35);
+    }
+
+    .hill-station-card img {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+    }
+
+    .hill-station-card .card-body {
+        flex: 1;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .hill-station-card .card-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text-main);
+        margin-bottom: 0.5rem;
+    }
+
+    .location-info {
+        font-size: 0.85rem;
+        color: var(--accent-color);
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+    }
+
+    .location-info span {
+        margin-right: 1rem;
+    }
+
+    .hill-station-card .card-text {
+        font-size: 0.9rem;
+        color: var(--text-dim);
+        margin-bottom: 1rem;
+        flex: 1;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .weather-badge {
+        display: inline-block;
+        background: rgba(139, 92, 246, 0.2);
+        color: #a78bfa;
+        padding: 0.35rem 0.85rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        margin-right: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .card-footer-link {
+        padding-top: 1rem;
+        border-top: 1px solid var(--glass-border);
+    }
+
+    .card-footer-link a {
+        color: var(--accent-color);
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.3s;
+    }
+
+    .card-footer-link a:hover {
+        color: #fff;
+    }
+
+    .form-control, .form-select {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        color: var(--text-main);
+    }
+
+    .form-control::placeholder {
+        color: var(--text-dim);
+    }
+
+    .btn-primary-custom {
+        background: var(--accent-color);
+        border: none;
+        color: #fff;
+        font-weight: 600;
+        border-radius: 10px;
+    }
+
+    .btn-primary-custom:hover {
+        background: #0ea5e9;
+        color: #fff;
+    }
+
+    .btn-add-hill-station {
+        background: var(--accent-color);
+        border: none;
+        color: #fff;
+        font-weight: 600;
+        border-radius: 10px;
+        padding: 0.75rem 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .btn-add-hill-station:hover {
+        background: #0ea5e9;
+        color: #fff;
+    }
+
+    .no-results {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: var(--text-dim);
+    }
+
+    .no-results p {
+        font-size: 1.2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4" style="max-width: 1400px; margin: 0 auto; padding-left: 2rem; padding-right: 2rem;">
+    
+    <!-- Hero Section -->
+    <div class="explorer-hero">
+        <h1>🏔️ Discover Hill Stations</h1>
+        <p>Explore serene mountain retreats and escape to nature's beauty</p>
+    </div>
+
+    <!-- Admin Add Button -->
+    {% if user.is_staff %}
+    <a href="{% url 'hill-station-add' %}" class="btn btn-add-hill-station">+ Add Hill Station</a>
+    {% endif %}
+
+    <!-- Search & Filter Section -->
+    <div class="search-filter-section">
+        <form method="GET" class="row g-3">
+            <div class="col-md-5">
+                <label for="state" class="form-label">Filter by State</label>
+                <select id="state" name="state" class="form-select">
+                    <option value="">-- Select State --</option>
+                    {% for s in states %}
+                    <option value="{{ s }}" {% if s == selected_state %}selected{% endif %}>{{ s }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-5">
+                <label for="city" class="form-label">Filter by City</label>
+                <select id="city" name="city" class="form-select">
+                    <option value="">-- Select City --</option>
+                    {% for c in cities %}
+                    <option value="{{ c }}" {% if c == selected_city %}selected{% endif %}>{{ c }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary-custom w-100">Search</button>
+                <a href="{% url 'hill-stations-list' %}" class="btn btn-secondary" style="background: rgba(255, 255, 255, 0.1); border: 1px solid var(--glass-border); color: var(--text-main); width: 100%;">Clear</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Hill Stations Grid -->
+    {% if hill_stations %}
+    <div class="row g-4">
+        {% for hill_station in hill_stations %}
+        <div class="col-lg-4 col-md-6">
+            <div class="hill-station-card">
+                {% if hill_station.image %}
+                <img src="{{ hill_station.image.url }}" alt="{{ hill_station.name }}">
+                {% else %}
+                <img src="https://via.placeholder.com/400x250?text={{ hill_station.name }}" alt="{{ hill_station.name }}">
+                {% endif %}
+                
+                <div class="card-body">
+                    <h5 class="card-title">{{ hill_station.name }}</h5>
+                    
+                    <div class="location-info">
+                        <span>📍 {{ hill_station.city }}, {{ hill_station.state }}</span>
+                    </div>
+                    
+                    <div class="weather-badge">
+                        🌡️ {{ hill_station.temperature_range }}
+                    </div>
+                    
+                    <p class="card-text">{{ hill_station.description|truncatewords:20 }}</p>
+                    
+                    <div class="card-footer-link">
+                        <a href="{% url 'hill-station-detail' hill_station.pk %}">View Details →</a>
+                        {% if user.is_staff %}
+                        <a href="{% url 'hill-station-edit' hill_station.pk %}" class="ms-3">Edit</a>
+                        <a href="{% url 'hill-station-delete' hill_station.pk %}" class="ms-3" style="color: #f87171;">Delete</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-results">
+        <p>No hill stations found. Try adjusting your filters.</p>
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

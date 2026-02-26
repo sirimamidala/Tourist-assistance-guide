@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ action }} Place – Explorer Admin{% endblock %}
+
+{% block extra_head %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    .form-wrapper {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 2.5rem;
+        width: 100%;
+        max-width: 680px;
+    }
+
+    .form-wrapper h2 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 1.75rem;
+    }
+
+    label {
+        color: var(--text-dim);
+        font-size: 0.9rem;
+        margin-bottom: 0.3rem;
+        display: block;
+    }
+
+    .form-control,
+    .form-select {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--glass-border);
+        color: var(--text-main);
+        border-radius: 10px;
+        padding: 0.7rem 1rem;
+        font-size: 0.95rem;
+        width: 100%;
+        transition: border-color 0.2s;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: var(--accent-color);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--text-main);
+    }
+
+    .form-select option {
+        background: #1e293b;
+        color: var(--text-main);
+    }
+
+    .form-group {
+        margin-bottom: 1.4rem;
+    }
+
+    .errorlist {
+        list-style: none;
+        padding: 0;
+        margin: 0.4rem 0 0;
+    }
+
+    .errorlist li {
+        color: #f87171;
+        font-size: 0.82rem;
+    }
+
+    .btn-submit {
+        background: var(--accent-color);
+        color: #0f172a;
+        font-weight: 700;
+        border: none;
+        border-radius: 10px;
+        padding: 0.75rem 2rem;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+
+    .btn-submit:hover {
+        opacity: 0.85;
+    }
+
+    .btn-cancel {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        color: var(--text-dim);
+        border-radius: 10px;
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        text-decoration: none;
+        margin-left: 1rem;
+        transition: all 0.2s;
+    }
+
+    .btn-cancel:hover {
+        color: var(--text-main);
+    }
+
+    /* File input */
+    input[type="file"].form-control {
+        padding: 0.5rem 0.75rem;
+    }
+
+    .current-image {
+        margin-top: 0.5rem;
+    }
+
+    .current-image img {
+        width: 120px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid var(--glass-border);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-wrapper" style="animation: fadeIn 0.7s ease-out;">
+    <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1.75rem;">
+        <span style="font-size:1.6rem;">{% if action == 'Add' %}🗺️{% else %}✏️{% endif %}</span>
+        <h2 style="margin:0;">{{ action }} Tourist Place</h2>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="form-group">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}
+            <small style="color:var(--text-dim); font-size:0.8rem;">{{ field.help_text }}</small>
+            {% endif %}
+            {% if field.errors %}
+            <ul class="errorlist">{% for e in field.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+            {% endif %}
+            {% if field.name == 'image' and place.image %}
+            <div class="current-image">
+                <small style="color:var(--text-dim);">Current image:</small><br>
+                <img src="{{ place.image.url }}" alt="Current">
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <div class="d-flex align-items-center mt-3">
+            <button type="submit" class="btn-submit">
+                {% if action == 'Add' %}✅ Add Place{% else %}💾 Save Changes{% endif %}
+            </button>
+            <a href="{% if place %}{% url 'explorer-detail' place.pk %}{% else %}{% url 'explorer-list' %}{% endif %}"
+                class="btn-cancel">Cancel</a>
+        </div>
+    </form>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

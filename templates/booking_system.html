@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Book Services - Tourist Assistance{% endblock %}
+
+{% block extra_head %}
+<style>
+    .hero-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+    }
+
+    .hero-bg {
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+        filter: brightness(0.6) saturate(1.2);
+        animation: slowZoom 25s infinite alternate ease-in-out;
+    }
+
+    .hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at center, transparent, rgba(15, 23, 42, 0.8));
+    }
+
+    @keyframes slowZoom {
+        from {
+            transform: scale(1);
+        }
+
+        to {
+            transform: scale(1.1);
+        }
+    }
+
+    /* Improve visibility when backgrounds are active */
+    .hotel-active .header h1,
+    .hotel-active .service-card h3,
+    .transport-active .header h1,
+    .transport-active .service-card h3,
+    .guide-active .header h1,
+    .guide-active .service-card h3,
+    .all-services-active .header h1,
+    .all-services-active .service-card h3 {
+        color: #ffffff;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .hotel-active .header p,
+    .hotel-active .service-card p,
+    .hotel-active .filter-btn:not(.active),
+    .transport-active .header p,
+    .transport-active .service-card p,
+    .transport-active .filter-btn:not(.active),
+    .guide-active .header p,
+    .guide-active .service-card p,
+    .guide-active .filter-btn:not(.active),
+    .all-services-active .header p,
+    .all-services-active .service-card p,
+    .all-services-active .filter-btn:not(.active) {
+        color: #e2e8f0 !important;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .hotel-active .service-card,
+    .transport-active .service-card,
+    .guide-active .service-card,
+    .all-services-active .service-card {
+        background: rgba(15, 23, 42, 0.7) !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
+    }
+
+    .hotel-active .service-card p strong,
+    .transport-active .service-card p strong,
+    .guide-active .service-card p strong,
+    .all-services-active .service-card p strong {
+        color: #ffffff;
+    }
+</style>
+
+{% if active_type == 'HOTEL' %}
+<style>
+    .hero-bg {
+        background-image: url('{% static "images/hotel-bg.png" %}');
+    }
+</style>
+{% elif active_type == 'TRANSPORT' %}
+<style>
+    .hero-bg {
+        background-image: url('{% static "images/transport-bg.png" %}');
+    }
+</style>
+{% elif active_type == 'GUIDE' %}
+<style>
+    .hero-bg {
+        background-image: url('{% static "images/guide-bg.png" %}');
+    }
+</style>
+{% else %}
+<style>
+    .hero-bg {
+        background-image: url('{% static "images/all-services-bg.png" %}');
+    }
+</style>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="hero-container">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+</div>
+<div class="booking-wrapper {% if active_type == 'HOTEL' %}hotel-active{% elif active_type == 'TRANSPORT' %}transport-active{% elif active_type == 'GUIDE' %}guide-active{% else %}all-services-active{% endif %}"
+    style="width: 100%; max-width: 1200px; animation: fadeIn 0.8s ease-out; position: relative; z-index: 1;">
+    <div class="header" style="margin-bottom: 3rem; text-align: center;">
+        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Book Your Travel Essentials 🏨</h1>
+        <p style="color: var(--text-dim); font-size: 1.1rem;">Secure top-rated stays, transport, and expert local
+            guides.</p>
+    </div>
+
+    <div class="filter-bar glass"
+        style="display: flex; gap: 1rem; padding: 1rem; border-radius: 50px; margin-bottom: 3rem; justify-content: center; flex-wrap: wrap; align-items: center;">
+        <a href="{% url 'booking-system' %}" class="filter-btn {% if not active_type %}active{% endif %}"
+            style="padding: 0.5rem 1.5rem; border-radius: 20px; border: none; background: {% if not active_type %}var(--accent){% else %}transparent{% endif %}; color: {% if not active_type %}white{% else %}var(--text-dim){% endif %}; cursor: pointer; text-decoration: none;">All
+            Services</a>
+        <a href="{% url 'booking-system' %}?type=HOTEL"
+            class="filter-btn {% if active_type == 'HOTEL' %}active{% endif %}"
+            style="padding: 0.5rem 1.5rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: {% if active_type == 'HOTEL' %}var(--accent){% else %}transparent{% endif %}; color: {% if active_type == 'HOTEL' %}white{% else %}var(--text-dim){% endif %}; cursor: pointer; text-decoration: none;">Hotels</a>
+        <a href="{% url 'booking-system' %}?type=TRANSPORT"
+            class="filter-btn {% if active_type == 'TRANSPORT' %}active{% endif %}"
+            style="padding: 0.5rem 1.5rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: {% if active_type == 'TRANSPORT' %}var(--accent){% else %}transparent{% endif %}; color: {% if active_type == 'TRANSPORT' %}white{% else %}var(--text-dim){% endif %}; cursor: pointer; text-decoration: none;">Transport</a>
+        <a href="{% url 'booking-system' %}?type=GUIDE"
+            class="filter-btn {% if active_type == 'GUIDE' %}active{% endif %}"
+            style="padding: 0.5rem 1.5rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: {% if active_type == 'GUIDE' %}var(--accent){% else %}transparent{% endif %}; color: {% if active_type == 'GUIDE' %}white{% else %}var(--text-dim){% endif %}; cursor: pointer; text-decoration: none;">Local
+            Guides</a>
+        {% if user.is_authenticated and active_type == 'GUIDE' %}
+        <a href="{% url 'guide-register' %}" class="filter-btn"
+            style="padding: 0.5rem 1.5rem; border-radius: 20px; border: 1px solid rgba(56, 189, 248, 0.3); background: rgba(56, 189, 248, 0.1); color: var(--accent); cursor: pointer; text-decoration: none; margin-left: auto;">
+            ✓ Register as Guide
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="services-grid"
+        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem;">
+        {% for service in services %}
+        <div class="service-card glass" data-type="{{ service.type }}"
+            style="padding: 1.5rem; border-radius: 20px; transition: transform 0.3s; background: var(--glass-bg); border: 1px solid var(--glass-border);">
+            <div class="badge"
+                style="background: rgba(56, 189, 248, 0.2); color: var(--accent-color); padding: 0.3rem 0.8rem; border-radius: 10px; font-size: 0.7rem; font-weight: bold; width: fit-content; margin-bottom: 1rem;">
+                {{ service.get_type_display|upper }}</div>
+            <h3 style="margin-bottom: 0.5rem;">{{ service.name }}</h3>
+            <p style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 1.5rem;">{{ service.description }}</p>
+
+            {% if service.type == 'HOTEL' %}
+            <p style="font-size:0.85rem; color:var(--text-dim); margin-bottom:0.5rem;"><strong>📅 Availability:</strong>
+                {% if service.availability_calendar %}
+                {{ service.availability_calendar|length }} dates available
+                {% else %}
+                Check availability
+                {% endif %}
+            </p>
+            {% if service.contact_number %}
+            <p style="font-size:0.85rem; color:var(--text-dim); margin-bottom:0.5rem;"><strong>☎️ Contact:</strong>
+                {% if service.name == "Grand Plaza Hotel" %}9123456780
+                {% elif service.name == "Sunset Resort" %}9234567891
+                {% elif service.name == "City Center Inn" %}9345678902
+                {% elif service.name == "Mountain View Lodge" %}9456789013
+                {% elif service.name == "Boutique Oasis" %}9567890124
+                {% else %}900000000{{ forloop.counter }}{% endif %}
+            </p>
+            {% endif %}
+            {% elif service.type == 'TRANSPORT' %}
+            <p style="font-size:0.85rem; color:var(--text-dim); margin-bottom:0.5rem;"><strong>☎️ Contact:</strong>
+                {% if service.name == "Freedom Cabs" %}9678901235
+                {% elif service.name == "Elite Lines" %}9789012346
+                {% elif service.name == "Zip Scooters" %}9890123457
+                {% else %}990000000{{ forloop.counter }}{% endif %}
+            </p>
+            <p style="font-size:0.85rem; color:var(--text-dim); margin-bottom:0.5rem;"><strong>⭐ Rating:</strong> {{
+                service.rating }}/5</p>
+            {% elif service.type == 'GUIDE' %}
+            <p style="font-size:0.85rem; color:var(--text-dim); margin-bottom:0.5rem;"><strong>☎️ Contact:</strong>
+                90000000{{ forloop.counter|add:"10" }}</p>
+            <p style="font-size:0.85rem; color:var(--text-dim); margin-bottom:0.5rem;"><strong>⭐ Rating:</strong> {{
+                service.rating }}/5</p>
+            {% endif %}
+
+            <div class="card-footer"
+                style="padding-top: 1rem; border-top: 1px solid var(--glass-border); display: flex; justify-content: flex-end; align-items: center;">
+                <a href="{% url 'initiate-booking' service.id %}" class="btn-primary"
+                    style="padding: 0.5rem 1.2rem; font-size: 0.9rem; text-decoration: none;">Book Now</a>
+            </div>
+        </div>
+        {% empty %}
+        <p style="text-align: center; grid-column: 1 / -1; color: var(--text-dim);">
+            {% if active_type == 'HOTEL' %}
+            No hotels available at the moment.
+            {% elif active_type == 'TRANSPORT' %}
+            No transport services available at the moment.
+            {% elif active_type == 'GUIDE' %}
+            No local guides available at the moment.
+            {% else %}
+            No services available at the moment.
+            {% endif %}
+            Please check back later.
+        </p>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .service-card:hover {
+        transform: scale(1.02);
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .filter-btn:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--accent);
+    }
+</style>
+{% endblock %}

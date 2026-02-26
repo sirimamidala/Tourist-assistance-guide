@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}My Itineraries — Tourist Assist{% endblock %}
+
+{% block extra_head %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    body {
+        background-color: var(--primary-bg);
+        background-image: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.85)),
+        url('{% static "images/my-plans-bg.png" %}');
+        background-size: cover;
+        background-attachment: fixed;
+        background-position: center;
+        color: var(--text-main);
+    }
+
+    .list-hero {
+        background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(139, 92, 246, 0.12));
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .plan-card {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.2rem;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .plan-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
+    }
+
+    .plan-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 0.4rem;
+    }
+
+    .plan-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin: 0.5rem 0 1rem;
+    }
+
+    .meta-chip {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 0.25rem 0.7rem;
+        font-size: 0.8rem;
+        color: var(--text-dim);
+    }
+
+    .budget-economy {
+        color: #4ade80;
+        border-color: rgba(74, 222, 128, 0.3);
+        background: rgba(74, 222, 128, 0.08);
+    }
+
+    .budget-moderate {
+        color: #fbbf24;
+        border-color: rgba(251, 191, 36, 0.3);
+        background: rgba(251, 191, 36, 0.08);
+    }
+
+    .budget-luxury {
+        color: #c084fc;
+        border-color: rgba(192, 132, 252, 0.3);
+        background: rgba(192, 132, 252, 0.08);
+    }
+
+    .plan-actions {
+        display: flex;
+        gap: 0.6rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-view {
+        background: linear-gradient(135deg, #38bdf8, #818cf8);
+        border: none;
+        border-radius: 8px;
+        padding: 0.45rem 1rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: white;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        transition: transform 0.15s;
+    }
+
+    .btn-view:hover {
+        transform: translateY(-1px);
+        color: white;
+    }
+
+    .btn-action {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        padding: 0.45rem 1rem;
+        font-size: 0.85rem;
+        color: var(--text-dim);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        transition: background 0.15s;
+    }
+
+    .btn-action:hover {
+        background: rgba(255, 255, 255, 0.12);
+        color: var(--text-main);
+    }
+
+    .btn-delete {
+        background: rgba(239, 68, 68, 0.08);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        border-radius: 8px;
+        padding: 0.45rem 1rem;
+        font-size: 0.85rem;
+        color: #f87171;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        transition: background 0.15s;
+    }
+
+    .btn-delete:hover {
+        background: rgba(239, 68, 68, 0.2);
+        color: #f87171;
+    }
+
+    .btn-create {
+        background: linear-gradient(135deg, #38bdf8, #818cf8);
+        border: none;
+        border-radius: 12px;
+        padding: 0.75rem 1.8rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: white;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: transform 0.2s;
+    }
+
+    .btn-create:hover {
+        transform: translateY(-2px);
+        color: white;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="width:100%;max-width:900px;padding:1rem 0 4rem;">
+
+    <div class="list-hero">
+        <div>
+            <h1 style="font-size:1.8rem;font-weight:700;margin-bottom:0.3rem;">✈️ Plan Your Custom Trip</h1>
+            <p style="color:var(--text-dim);margin:0;">Create and manage your personalized travel itineraries</p>
+        </div>
+        <a href="{% url 'itinerary-create' %}" class="btn-create">✈️ New Itinerary</a>
+    </div>
+
+    {% if messages %}
+    {% for msg in messages %}
+    <div class="alert" style="border-radius:12px;margin-bottom:1rem;
+        {% if msg.tags == 'success' %}background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.3);color:#4ade80;
+        {% else %}background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;{% endif %}">
+        {{ msg }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if plans %}
+    {% for plan in plans %}
+    <div class="plan-card">
+        <div class="plan-title">🗺️ {{ plan.destination }}</div>
+        <div class="plan-meta">
+            <span class="meta-chip">📅 {{ plan.start_date }} → {{ plan.end_date }}</span>
+            <span class="meta-chip">🌤️ {{ plan.num_days }} day{{ plan.num_days|pluralize }}</span>
+            <span class="meta-chip budget-{{ plan.budget }}">
+                💰
+                {% if plan.budget == 'economy' %}Economy
+                {% elif plan.budget == 'moderate' %}Moderate
+                {% else %}Luxury{% endif %}
+            </span>
+        </div>
+        <div class="plan-actions">
+            <a href="{% url 'itinerary-detail' plan.pk %}" class="btn-view">👁️ View</a>
+            <a href="{% url 'itinerary-edit' plan.pk %}" class="btn-action">✏️ Edit</a>
+            <a href="{% url 'itinerary-pdf' plan.pk %}" class="btn-action">📄 Download PDF</a>
+            <a href="{% url 'itinerary-delete' plan.pk %}" class="btn-delete">🗑️ Delete</a>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-state">
+        <div style="font-size:4rem;margin-bottom:1rem;">🗺️</div>
+        <h3 style="margin-bottom:0.5rem;">No itineraries yet!</h3>
+        <p style="color:var(--text-dim);margin-bottom:1.5rem;">Create your first custom travel plan today.</p>
+        <a href="{% url 'itinerary-create' %}" class="btn-create">✈️ Plan My First Trip</a>
+    </div>
+    {% endif %}
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

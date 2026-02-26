@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Community & Reviews - Tourist Assistance{% endblock %}
+
+{% block content %}
+<div class="community-wrapper" style="width: 100%; max-width: 1200px; animation: fadeIn 0.8s ease-out;">
+    <div class="header"
+        style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem;">
+        <div>
+            <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Tourist Stories 🌟</h1>
+            <p style="color: var(--text-dim);">Share your adventures and discover hidden gems from fellow travelers.</p>
+        </div>
+        <button class="btn-primary" style="padding: 0.8rem 2rem;">Share Your Experience</button>
+    </div>
+
+    <div class="community-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 3rem;">
+        <!-- Feed Section -->
+        <div class="feed">
+            <div class="post-card glass" style="padding: 2rem; border-radius: 20px; margin-bottom: 2rem;">
+                <div class="post-header" style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="avatar"
+                        style="width: 45px; height: 45px; border-radius: 50%; background: var(--accent);"></div>
+                    <div>
+                        <h4 style="margin: 0;">Explorer_John</h4>
+                        <span style="font-size: 0.8rem; color: var(--text-dim);">2 hours ago • Historical Tour</span>
+                    </div>
+                </div>
+                <h2 style="font-size: 1.4rem; margin-bottom: 1rem;">Unbelievable Sunset at the Ancient Ruins</h2>
+                <p style="line-height: 1.6; color: var(--text-dim); margin-bottom: 1.5rem;">Yesterday's visit to the
+                    ruins was magical. Pro tip: Arrive 30 minutes before sunset to get the best photos without the
+                    crowd! The guide Alex was amazing too.</p>
+                <div class="post-image glass"
+                    style="width: 100%; height: 300px; border-radius: 15px; background: rgba(255,255,255,0.05); margin-bottom: 1.5rem;">
+                </div>
+                <div class="post-actions" style="display: flex; gap: 2rem; color: var(--text-dim); font-size: 0.9rem;">
+                    <span style="cursor: pointer;">❤️ 124 Likes</span>
+                    <span style="cursor: pointer;">💬 18 Comments</span>
+                    <span style="cursor: pointer;">↗️ Share</span>
+                </div>
+            </div>
+
+            <div class="post-card glass" style="padding: 2rem; border-radius: 20px; margin-bottom: 2rem;">
+                <!-- Another post mockup -->
+                <h4 style="margin-bottom: 1rem;">Recent Review: Grand Tourist Plaza</h4>
+                <div class="rating" style="color: #ffc107; margin-bottom: 1rem;">⭐⭐⭐⭐⭐ 5.0</div>
+                <p style="color: var(--text-dim);">"The staff here made me feel at home. Perfect location for
+                    sightseeing!"</p>
+            </div>
+        </div>
+
+        <!-- Sidebar Section -->
+        <div class="community-sidebar">
+            <div class="ai-assistant-card glass"
+                style="padding: 1.5rem; border-radius: 20px; border: 1px solid var(--accent); margin-bottom: 2rem;">
+                <h3 style="margin-bottom: 1rem;">AI Travel Assistant 🤖</h3>
+                <p style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 1.5rem;">Got questions? Ask me about
+                    local tips, weather, or directions!</p>
+                <input type="text" placeholder="Type your question..."
+                    style="width: 100%; padding: 0.8rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white; margin-bottom: 0.8rem;">
+                <button class="btn-primary" style="width: 100%; padding: 0.6rem;">Ask AI</button>
+            </div>
+
+            <div class="emergency-card glass"
+                style="padding: 1.5rem; border-radius: 20px; background: rgba(220, 53, 69, 0.05); border: 1px solid rgba(220, 53, 69, 0.2);">
+                <h3 style="color: #dc3545; margin-bottom: 1rem;">Emergency & Helpline 🆘</h3>
+                <ul style="list-style: none; padding: 0; font-size: 0.9rem;">
+                    <li style="margin-bottom: 1rem; display: flex; justify-content: space-between;">
+                        <span>Police</span>
+                        <span style="font-weight: bold;">100</span>
+                    </li>
+                    <li style="margin-bottom: 1rem; display: flex; justify-content: space-between;">
+                        <span>Ambulance</span>
+                        <span style="font-weight: bold;">102</span>
+                    </li>
+                    <li style="display: flex; justify-content: space-between;">
+                        <span>Tourist Helpline</span>
+                        <span style="font-weight: bold;">1800-TOURIST</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

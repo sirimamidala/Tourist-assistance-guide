@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Tourist Places - TouristAssist{% endblock %}
+
+{% block extra_head %}
+<style>
+    .destination-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+        padding: 2rem 0;
+        width: 100%;
+        max-width: 1200px;
+    }
+
+    .card {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        backdrop-filter: blur(5px);
+    }
+
+    .card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        border-color: var(--accent-color);
+    }
+
+    .card-img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .card-content {
+        padding: 1.5rem;
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--text-main);
+    }
+
+    .card-text {
+        color: var(--text-dim);
+        font-size: 0.9rem;
+        line-height: 1.5;
+        margin-bottom: 1rem;
+    }
+
+    .btn-card {
+        display: inline-block;
+        padding: 0.6rem 1.2rem;
+        background: var(--accent-color);
+        color: var(--primary-bg);
+        text-decoration: none;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: opacity 0.3s;
+    }
+
+    .btn-card:hover {
+        opacity: 0.9;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container" style="width: 100%;">
+
+    <div class="destination-grid">
+        {% for dest in destinations %}
+        <div class="card">
+            {% if dest.photo %}
+            <img src="{{ dest.photo.url }}" alt="{{ dest.name }}" class="card-img">
+            {% else %}
+            <div class="card-img"
+                style="background: #1e293b; display: flex; align-items: center; justify-content: center;">
+                📸 No Image
+            </div>
+            {% endif %}
+            <div class="card-content">
+                <h3 class="card-title">{{ dest.name }}</h3>
+                <p class="card-text">{{ dest.location|truncatechars:100 }}</p>
+                <a href="{% url 'destination-detail' dest.pk %}" class="btn-card">View Details</a>
+            </div>
+        </div>
+        {% empty %}
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

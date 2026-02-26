@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Emergency Help - TouristAssist{% endblock %}
+
+{% block extra_head %}
+<style>
+    body {
+        background-color: var(--primary-bg);
+        background-image: linear-gradient(rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.9)),
+        url('{% static "images/emergency-bg.png" %}'),
+        linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(56, 189, 248, 0.1));
+        background-size: cover;
+        background-attachment: fixed;
+        background-position: center;
+        color: var(--text-main);
+    }
+
+    .emergency-container {
+        max-width: 800px;
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .emergency-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        color: #ef4444;
+        /* Red for emergency */
+    }
+
+    .contact-card {
+        background: rgba(239, 68, 68, 0.05);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        padding: 1.5rem;
+        border-radius: 20px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        backdrop-filter: blur(5px);
+    }
+
+    .contact-info h3 {
+        margin-bottom: 0.25rem;
+        color: var(--text-main);
+    }
+
+    .contact-info p {
+        color: var(--text-dim);
+        font-size: 0.9rem;
+    }
+
+    .phone-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #ef4444;
+        text-decoration: none;
+    }
+
+    .phone-number:hover {
+        text-decoration: underline;
+    }
+
+    .safety-tips {
+        margin-top: 4rem;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        padding: 2rem;
+        border-radius: 20px;
+    }
+
+    .safety-tips h2 {
+        margin-bottom: 1rem;
+        color: var(--accent-color);
+    }
+
+    .safety-tips ul {
+        list-style: none;
+        padding-left: 0;
+    }
+
+    .safety-tips li {
+        margin-bottom: 1rem;
+        display: flex;
+        gap: 1rem;
+        color: var(--text-dim);
+    }
+
+    .safety-tips li::before {
+        content: "✔️";
+    }
+
+    /* Emergency & Helpline CSS */
+    .helpline-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .helpline-card {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(249, 115, 22, 0.1));
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        backdrop-filter: blur(10px);
+        transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .helpline-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(239, 68, 68, 0.6);
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(249, 115, 22, 0.15));
+    }
+
+    .helpline-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .helpline-name {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--text-main);
+        margin-bottom: 0.5rem;
+    }
+
+    .helpline-number {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #ef4444;
+        /* Alert red */
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .helpline-number:hover {
+        text-decoration: underline;
+    }
+
+    .helpline-warning {
+        text-align: center;
+        color: #f97316;
+        /* Alert orange */
+        font-size: 0.95rem;
+        margin-top: 1.5rem;
+        margin-bottom: 3rem;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="emergency-container">
+    <div class="emergency-header">
+        <h1>Emergency Helper 🆘</h1>
+        <p style="color: var(--text-dim);">Immediate assistance and local helpline numbers.</p>
+    </div>
+
+    <!-- Static Emergency & Helpline Section -->
+    <div class="helpline-section">
+        <h2 style="text-align: center; color: var(--text-main); margin-bottom: 1.5rem;">Emergency & Helpline</h2>
+        <div class="helpline-grid">
+            <div class="helpline-card">
+                <div class="helpline-icon">🚓</div>
+                <div class="helpline-name">Police</div>
+                <a href="tel:100" class="helpline-number">100</a>
+            </div>
+            <div class="helpline-card">
+                <div class="helpline-icon">🚑</div>
+                <div class="helpline-name">Ambulance</div>
+                <a href="tel:102" class="helpline-number">102</a>
+            </div>
+            <div class="helpline-card">
+                <div class="helpline-icon">🆘</div>
+                <div class="helpline-name">Tourist Helpline</div>
+                <a href="tel:1800TOURIST" class="helpline-number" style="font-size: 1.5rem;">1800-TOURIST</a>
+            </div>
+        </div>
+        <p class="helpline-warning">⚠️ Use these numbers only in emergency situations.</p>
+    </div>
+
+    <div class="contacts-list">
+        {% for contact in contacts %}
+        <div class="contact-card">
+            <div class="contact-info">
+                <h3>{{ contact.name }}</h3>
+                <p>{{ contact.description }}</p>
+            </div>
+            <a href="tel:{{ contact.phone_number }}" class="phone-number">{{ contact.phone_number }}</a>
+        </div>
+        {% empty %}
+        <div class="contact-card">
+            <div class="contact-info">
+                <h3>General Emergency</h3>
+                <p>National emergency response team</p>
+            </div>
+            <a href="tel:911" class="phone-number">911 / 112</a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="safety-tips">
+        <h2>Quick Safety Tips</h2>
+        <ul>
+            <li>Always keep a copy of your passport and visa digitally.</li>
+            <li>Share your live location with a trusted friend or family member.</li>
+            <li>Be cautious of unauthorized local guides and services.</li>
+            <li>Keep emergency cash in a separate, secure place.</li>
+            <li>Local police stations are generally helpful to tourists; don't hesitate to reach out.</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
