@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Tourist Explorer - Discover Amazing Destinations{% endblock %}
+
+{% block content %}
+<div class="hero-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 80px 20px; text-align: center;">
+    <h1 style="font-size: 3em; margin-bottom: 20px;">Welcome to Tourist Explorer</h1>
+    <p style="font-size: 1.2em; margin-bottom: 30px;">Discover amazing destinations, book local guides, and plan your perfect itinerary</p>
+    <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+        <a href="{% url 'explorer' %}" class="btn btn-light" style="padding: 12px 30px; font-size: 1.1em; text-decoration: none; background: white; color: #667eea; border-radius: 5px; font-weight: bold;">
+            Explore Destinations
+        </a>
+        <a href="{% url 'booking-system' %}" class="btn btn-outline-light" style="padding: 12px 30px; font-size: 1.1em; text-decoration: none; border: 2px solid white; color: white; border-radius: 5px; font-weight: bold;">
+            Book Services
+        </a>
+    </div>
+</div>
+
+<div style="padding: 60px 20px; max-width: 1200px; margin: 0 auto;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; margin-bottom: 60px;">
+        <div style="text-align: center;">
+            <h3 style="font-size: 1.5em; margin-bottom: 10px;">🗺️ Explore</h3>
+            <p>Discover beautiful destinations and hidden gems. Real-time location tracking and interactive maps.</p>
+        </div>
+        <div style="text-align: center;">
+            <h3 style="font-size: 1.5em; margin-bottom: 10px;">📅 Plan</h3>
+            <p>Create detailed itineraries with activities, accommodations, and transport arrangements.</p>
+        </div>
+        <div style="text-align: center;">
+            <h3 style="font-size: 1.5em; margin-bottom: 10px;">👥 Connect</h3>
+            <p>Book local guides, share experiences, and build connections with fellow travelers.</p>
+        </div>
+    </div>
+
+    {% if user.is_authenticated %}
+        <div style="background: #f8f9fa; padding: 40px; border-radius: 10px; text-align: center;">
+            <h2>Welcome back, {{ user.first_name|default:user.username }}!</h2>
+            <p style="font-size: 1.1em; margin: 20px 0;">Ready for your next adventure?</p>
+            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                <a href="{% url 'explorer' %}" class="btn" style="padding: 10px 25px; text-decoration: none; background: #667eea; color: white; border-radius: 5px;">Explore</a>
+                <a href="{% url 'itinerary-my' %}" class="btn" style="padding: 10px 25px; text-decoration: none; background: #764ba2; color: white; border-radius: 5px;">My Itineraries</a>
+                <a href="{% url 'booking-system' %}" class="btn" style="padding: 10px 25px; text-decoration: none; background: #667eea; color: white; border-radius: 5px;">Book Services</a>
+            </div>
+        </div>
+    {% else %}
+        <div style="background: #f8f9fa; padding: 40px; border-radius: 10px; text-align: center;">
+            <h2>Get Started Today</h2>
+            <p style="font-size: 1.1em; margin: 20px 0;">Sign in to Book guides, plan itineraries, and unlock exclusive features.</p>
+            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                <a href="{% url 'login' %}" class="btn" style="padding: 10px 25px; text-decoration: none; background: #667eea; color: white; border-radius: 5px;">Login</a>
+                <a href="{% url 'signup' %}" class="btn" style="padding: 10px 25px; text-decoration: none; background: #764ba2; color: white; border-radius: 5px;">Sign Up</a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
